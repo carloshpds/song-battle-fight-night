@@ -103,7 +103,7 @@ export class SpotifyApiService {
           return track &&
                  track.id &&
                  !track.is_local &&
-                 track.preview_url !== null
+                 (track.preview_url !== null || track.external_urls.spotify)
         }) as SpotifyTrack[]
 
       allTracks = [...allTracks, ...validTracks]

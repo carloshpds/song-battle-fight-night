@@ -49,7 +49,7 @@
         </div>
 
         <!-- Preview Indicator -->
-        <div v-if="!track.preview_url" class="no-preview-overlay">
+        <div v-if="isVoteDisabled" class="no-preview-overlay">
           <v-chip
             color="warning"
             size="small"
@@ -141,7 +141,7 @@
         block
         variant="elevated"
         @click.stop="handleVote"
-        :disabled="!track.preview_url"
+        :disabled="isVoteDisabled"
       >
         <v-icon class="mr-2">mdi-heart</v-icon>
         Vote for This Track
@@ -203,6 +203,10 @@ const artistNames = computed(() => {
 const isWinner = computed(() => {
   // This would be determined by the parent component
   return false // TODO: Implement winner logic
+})
+
+const isVoteDisabled = computed(() => {
+  return !props.track.preview_url && !props.track.external_urls.spotify
 })
 
 // Methods
