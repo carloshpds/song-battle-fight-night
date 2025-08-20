@@ -16,7 +16,7 @@ const battleStore = useBattleStore()
 onMounted(async () => {
   // Initialize authentication state
   await spotifyStore.initializeAuth()
-  
+
   // Initialize battle store
   battleStore.initializeBattle()
 })

@@ -1,9 +1,9 @@
-import type { 
-  SpotifyTrack, 
-  SpotifyPlaylist, 
-  SpotifyUser, 
+import type {
+  SpotifyTrack,
+  SpotifyPlaylist,
+  SpotifyUser,
   SpotifyPlaylistTrack,
-  SpotifyApiError 
+  SpotifyApiError
 } from '../types/spotify.types'
 
 export class SpotifyApiService {
@@ -22,7 +22,7 @@ export class SpotifyApiService {
    */
   private async makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`
-    
+
     const response = await fetch(url, {
       ...options,
       headers: {
@@ -39,7 +39,7 @@ export class SpotifyApiService {
           message: response.statusText
         }
       }))
-      
+
       throw new Error(`Spotify API Error: ${error.error.status} ${error.error.message}`)
     }
 
@@ -72,11 +72,11 @@ export class SpotifyApiService {
     while (true) {
       const playlists = await this.getUserPlaylists(limit, offset)
       allPlaylists = [...allPlaylists, ...playlists]
-      
+
       if (playlists.length < limit) {
         break // No more playlists
       }
-      
+
       offset += limit
     }
 
@@ -100,17 +100,17 @@ export class SpotifyApiService {
         .map((item: SpotifyPlaylistTrack) => item.track)
         .filter((track: any) => {
           // Filter out null tracks, local tracks, and tracks without preview
-          return track && 
-                 track.id && 
-                 !track.is_local && 
+          return track &&
+                 track.id &&
+                 !track.is_local &&
                  track.preview_url !== null
         }) as SpotifyTrack[]
 
       allTracks = [...allTracks, ...validTracks]
-      
+
       // Update nextUrl - remove base URL if present
-      nextUrl = response.next ? 
-        response.next.replace('https://api.spotify.com/v1', '') : 
+      nextUrl = response.next ?
+        response.next.replace('https://api.spotify.com/v1', '') :
         null
     }
 
@@ -129,7 +129,7 @@ export class SpotifyApiService {
    */
   async getTracksByIds(trackIds: string[]): Promise<SpotifyTrack[]> {
     if (trackIds.length === 0) return []
-    
+
     const chunks = this.chunkArray(trackIds, 50) // Spotify API limit
     const allTracks: SpotifyTrack[] = []
 
@@ -148,7 +148,7 @@ export class SpotifyApiService {
     const encodedQuery = encodeURIComponent(query)
     const response = await this.makeRequest<{tracks: {items: SpotifyTrack[]}}>
       (`/search?q=${encodedQuery}&type=track&limit=${limit}&offset=${offset}`)
-    
+
     // Filter tracks that have preview URLs
     return response.tracks.items.filter(track => track.preview_url !== null)
   }
@@ -176,9 +176,9 @@ export class SpotifyApiService {
       // Filter tracks with preview URLs
       const validTracks = response.items.filter((track: SpotifyTrack) => track.preview_url !== null)
       allTracks = [...allTracks, ...validTracks]
-      
-      nextUrl = response.next ? 
-        response.next.replace('https://api.spotify.com/v1', '') : 
+
+      nextUrl = response.next ?
+        response.next.replace('https://api.spotify.com/v1', '') :
         null
     }
 
@@ -191,7 +191,7 @@ export class SpotifyApiService {
   async getArtistTopTracks(artistId: string, country = 'US'): Promise<SpotifyTrack[]> {
     const response = await this.makeRequest<{tracks: SpotifyTrack[]}>
       (`/artists/${artistId}/top-tracks?country=${country}`)
-    
+
     // Filter tracks with preview URLs
     return response.tracks.filter(track => track.preview_url !== null)
   }

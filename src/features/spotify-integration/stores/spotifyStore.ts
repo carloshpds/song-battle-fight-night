@@ -2,10 +2,10 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { SpotifyAuthService } from '../services/spotifyAuthService'
 import { SpotifyApiService } from '../services/spotifyApiService'
-import type { 
-  SpotifyAuthState, 
-  SpotifyPlaylist, 
-  SpotifyTrack 
+import type {
+  SpotifyAuthState,
+  SpotifyPlaylist,
+  SpotifyTrack
 } from '../types/spotify.types'
 
 export const useSpotifyStore = defineStore('spotify', () => {
@@ -17,7 +17,7 @@ export const useSpotifyStore = defineStore('spotify', () => {
     isAuthenticated: false,
     user: null
   })
-  
+
   const userPlaylists = ref<SpotifyPlaylist[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -32,7 +32,7 @@ export const useSpotifyStore = defineStore('spotify', () => {
     const storedAuth = SpotifyAuthService.getStoredAuthState()
     if (storedAuth) {
       authState.value = storedAuth
-      
+
       // Verify token is still valid
       if (authState.value.accessToken) {
         try {
@@ -64,7 +64,7 @@ export const useSpotifyStore = defineStore('spotify', () => {
     try {
       const newAuthState = await SpotifyAuthService.exchangeCodeForToken(code, state)
       authState.value = newAuthState
-      
+
       // Get user profile
       if (newAuthState.accessToken) {
         const apiService = new SpotifyApiService(newAuthState.accessToken)
@@ -90,7 +90,7 @@ export const useSpotifyStore = defineStore('spotify', () => {
     try {
       const newAuthState = await SpotifyAuthService.refreshAccessToken(authState.value.refreshToken)
       authState.value = { ...authState.value, ...newAuthState }
-      
+
       // Update stored auth state
       SpotifyAuthService.storeAuthState(authState.value)
     } catch (err) {
@@ -108,10 +108,10 @@ export const useSpotifyStore = defineStore('spotify', () => {
       isAuthenticated: false,
       user: null
     }
-    
+
     userPlaylists.value = []
     error.value = null
-    
+
     SpotifyAuthService.removeStoredAuthState()
     SpotifyAuthService.clearAuthState()
   }
@@ -130,7 +130,7 @@ export const useSpotifyStore = defineStore('spotify', () => {
       userPlaylists.value = playlists
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to load playlists'
-      
+
       // If token is expired, try to refresh
       if (err instanceof Error && err.message.includes('401')) {
         try {
@@ -221,12 +221,12 @@ export const useSpotifyStore = defineStore('spotify', () => {
     userPlaylists: computed(() => userPlaylists.value),
     isLoading: computed(() => isLoading.value),
     error: computed(() => error.value),
-    
+
     // Computed
     isAuthenticated,
     accessToken,
     user,
-    
+
     // Actions
     initializeAuth,
     login,

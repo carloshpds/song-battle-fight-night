@@ -50,7 +50,7 @@ router.beforeEach((to, _from, next) => {
   if (title) {
     document.title = title
   }
-  
+
   next()
 })
 

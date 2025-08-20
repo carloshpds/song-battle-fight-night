@@ -1,8 +1,8 @@
 <template>
   <v-card
     class="battle-music-card"
-    :class="{ 
-      'playing': isPlaying, 
+    :class="{
+      'playing': isPlaying,
       'winner': isWinner,
       'battle-card-left': side === 'left',
       'battle-card-right': side === 'right'
@@ -67,11 +67,11 @@
       <h3 class="track-title text-h6 mb-2" :title="track.name">
         {{ track.name }}
       </h3>
-      
+
       <p class="track-artist text-body-2 text-medium-emphasis mb-2" :title="artistNames">
         {{ artistNames }}
       </p>
-      
+
       <p class="track-album text-caption text-medium-emphasis mb-3" :title="track.album.name">
         {{ track.album.name }}
       </p>
@@ -85,7 +85,7 @@
         >
           {{ formatDuration(track.duration_ms) }}
         </v-chip>
-        
+
         <v-chip
           v-if="track.explicit"
           size="small"
@@ -358,7 +358,7 @@ const formatDuration = (ms: number): string => {
   .battle-music-card {
     margin-bottom: 16px;
   }
-  
+
   .card-image-container {
     height: 250px;
   }

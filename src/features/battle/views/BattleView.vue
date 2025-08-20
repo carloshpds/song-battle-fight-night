@@ -6,15 +6,15 @@
         <v-icon class="mr-2">mdi-sword-cross</v-icon>
         Music Battle Fight Night
       </v-app-bar-title>
-      
+
       <v-spacer />
-      
+
       <v-btn
         icon="mdi-playlist-plus"
         @click="$router.push('/spotify/import')"
         title="Import more music"
       />
-      
+
       <v-btn
         icon="mdi-trophy"
         @click="showLeaderboard = true"
@@ -148,12 +148,12 @@
           <v-list-item-title class="text-h6">Battle Stats</v-list-item-title>
         </v-list-item>
         <v-divider />
-        
+
         <v-list-item>
           <v-list-item-title>Total Battles</v-list-item-title>
           <v-list-item-subtitle>{{ battleCount }}</v-list-item-subtitle>
         </v-list-item>
-        
+
         <v-list-item>
           <v-list-item-title>Tracks Available</v-list-item-title>
           <v-list-item-subtitle>{{ availableTracks.length }}</v-list-item-subtitle>
@@ -281,7 +281,7 @@ onMounted(() => {
     writing-mode: horizontal-tb;
     margin: 16px 0;
   }
-  
+
   .battle-cards {
     min-height: auto;
   }

@@ -32,7 +32,7 @@
             >
               {{ error }}
             </v-alert>
-            
+
             <v-btn
               color="primary"
               @click="retryConnection"
@@ -40,7 +40,7 @@
             >
               Try Again
             </v-btn>
-            
+
             <v-btn
               color="secondary"
               variant="outlined"
@@ -60,7 +60,7 @@
             <v-card-subtitle class="mb-4">
               Welcome back! Redirecting you to import your music...
             </v-card-subtitle>
-            
+
             <v-progress-linear
               indeterminate
               color="success"

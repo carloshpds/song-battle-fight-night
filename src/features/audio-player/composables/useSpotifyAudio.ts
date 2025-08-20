@@ -48,7 +48,7 @@ export function useSpotifyAudio() {
       await stopTrack()
 
       currentTrack.value = track
-      
+
       howlerInstance = new Howl({
         src: [track.preview_url],
         html5: true,
@@ -110,7 +110,7 @@ export function useSpotifyAudio() {
       howlerInstance.unload()
       howlerInstance = null
     }
-    
+
     isPlaying.value = false
     currentTime.value = 0
     isLoading.value = false
@@ -178,7 +178,7 @@ export function useSpotifyAudio() {
   // Helper functions
   const startProgressTracking = (): void => {
     stopProgressTracking() // Clear any existing interval
-    
+
     progressInterval = window.setInterval(() => {
       if (howlerInstance && isPlaying.value) {
         currentTime.value = howlerInstance.seek() as number
@@ -217,13 +217,13 @@ export function useSpotifyAudio() {
     volume: computed(() => volume.value),
     isLoading: computed(() => isLoading.value),
     error: computed(() => error.value),
-    
+
     // Computed
     progress,
     canPlay,
     formattedCurrentTime,
     formattedDuration,
-    
+
     // Actions
     playTrack,
     pauseTrack,

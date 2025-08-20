@@ -49,9 +49,9 @@
                   <v-alert v-else-if="playlistError" type="error" class="mb-4">
                     {{ playlistError }}
                     <template #append>
-                      <v-btn 
-                        size="small" 
-                        variant="text" 
+                      <v-btn
+                        size="small"
+                        variant="text"
                         @click="loadPlaylists"
                       >
                         Retry
@@ -63,7 +63,7 @@
                     <p class="mb-4 text-medium-emphasis">
                       Found {{ filteredPlaylists.length }} playlist{{ filteredPlaylists.length !== 1 ? 's' : '' }}
                     </p>
-                    
+
                     <v-list>
                       <v-list-item
                         v-for="playlist in paginatedPlaylists"
@@ -74,7 +74,7 @@
                       >
                         <template #prepend>
                           <v-avatar size="56">
-                            <v-img 
+                            <v-img
                               v-if="playlist.images?.[0]?.url"
                               :src="playlist.images[0].url"
                               :alt="playlist.name"
@@ -86,7 +86,7 @@
                         <v-list-item-title class="font-weight-medium">
                           {{ playlist.name }}
                         </v-list-item-title>
-                        
+
                         <v-list-item-subtitle>
                           {{ playlist.tracks.total }} tracks • {{ playlist.owner.display_name }}
                         </v-list-item-subtitle>
@@ -138,7 +138,7 @@
                     >
                       Parse URLs
                     </v-btn>
-                    
+
                     <v-btn
                       variant="outlined"
                       @click="clearUrls"
@@ -150,7 +150,7 @@
 
                   <div v-if="parsedTracks.length > 0" class="mt-4">
                     <h4 class="mb-3">Found {{ parsedTracks.length }} valid track{{ parsedTracks.length !== 1 ? 's' : '' }}:</h4>
-                    
+
                     <v-list density="compact" class="mb-4">
                       <v-list-item
                         v-for="track in parsedTracks"
@@ -158,7 +158,7 @@
                       >
                         <template #prepend>
                           <v-avatar size="40">
-                            <v-img 
+                            <v-img
                               v-if="track.album.images?.[0]?.url"
                               :src="track.album.images[0].url"
                               :alt="track.name"
@@ -260,7 +260,7 @@ const loadPlaylists = async () => {
 
 const selectPlaylist = async (playlist: SpotifyPlaylist) => {
   selectedPlaylistId.value = playlist.id
-  
+
   try {
     await battleStore.loadTracksFromPlaylist(playlist.id)
     router.push('/battle')
@@ -281,11 +281,11 @@ const parseUrls = async () => {
 
   try {
     const urls = urlsInput.value.split('\n').map(line => line.trim()).filter(line => line.length > 0)
-    
+
     for (const url of urls) {
       if (TrackParsingService.isValidSpotifyUrl(url)) {
         const parsed = TrackParsingService.parseSpotifyUrl(url)
-        
+
         if (parsed.type === 'track') {
           try {
             const track = await battleStore.loadTrackFromUrl(url)

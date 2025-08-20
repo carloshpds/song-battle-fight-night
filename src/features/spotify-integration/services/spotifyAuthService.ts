@@ -89,7 +89,7 @@ export class SpotifyAuthService {
 
     const data: SpotifyTokenResponse = await response.json()
     const authState = this.parseTokenResponse(data)
-    
+
     // If no new refresh token is provided, keep the existing one
     if (!authState.refreshToken) {
       authState.refreshToken = refreshToken
@@ -143,14 +143,14 @@ export class SpotifyAuthService {
     try {
       const stored = localStorage.getItem('spotify_auth')
       if (!stored) return null
-      
+
       const authState: SpotifyAuthState = JSON.parse(stored)
-      
+
       // Check if token is expired
       if (this.isTokenExpired(authState.expiresAt)) {
         return null
       }
-      
+
       return authState
     } catch (error) {
       console.warn('Failed to parse stored auth state:', error)

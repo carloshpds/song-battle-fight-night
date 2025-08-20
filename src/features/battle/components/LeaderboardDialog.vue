@@ -77,7 +77,7 @@
                     </span>
                     <span class="text-caption text-medium-emphasis ml-1">pts</span>
                   </div>
-                  
+
                   <div class="win-rate">
                     <v-chip
                       :color="getWinRateColor(entry.stats.winRate)"
@@ -102,7 +102,7 @@
                         <div class="text-caption text-medium-emphasis">Wins</div>
                       </div>
                     </v-col>
-                    
+
                     <v-col cols="6" sm="3">
                       <div class="text-center">
                         <div class="text-h6 text-error font-weight-bold">
@@ -111,7 +111,7 @@
                         <div class="text-caption text-medium-emphasis">Losses</div>
                       </div>
                     </v-col>
-                    
+
                     <v-col cols="6" sm="3">
                       <div class="text-center">
                         <div class="text-h6 font-weight-bold">
@@ -120,7 +120,7 @@
                         <div class="text-caption text-medium-emphasis">Total</div>
                       </div>
                     </v-col>
-                    
+
                     <v-col cols="6" sm="3">
                       <div class="text-center">
                         <div class="text-caption text-medium-emphasis">Last Battle</div>
@@ -169,9 +169,9 @@
         >
           Reset Stats
         </v-btn>
-        
+
         <v-spacer />
-        
+
         <v-btn
           color="primary"
           @click="$emit('update:modelValue', false)"
@@ -186,7 +186,7 @@
       <v-card>
         <v-card-title>Reset Statistics?</v-card-title>
         <v-card-text>
-          This will permanently delete all battle history and track statistics. 
+          This will permanently delete all battle history and track statistics.
           This action cannot be undone.
         </v-card-text>
         <v-card-actions>
@@ -257,7 +257,7 @@ const formatDate = (date: Date): string => {
   if (diffMins < 60) return `${diffMins}m ago`
   if (diffHours < 24) return `${diffHours}h ago`
   if (diffDays < 7) return `${diffDays}d ago`
-  
+
   return date.toLocaleDateString()
 }
 

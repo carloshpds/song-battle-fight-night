@@ -45,7 +45,7 @@ export const useBattleStore = defineStore('battle', () => {
 
   const loadTracksFromPlaylist = async (playlistId: string): Promise<SpotifyTrack[]> => {
     const spotifyStore = useSpotifyStore()
-    
+
     if (!spotifyStore.isAuthenticated) {
       throw new Error('User not authenticated with Spotify')
     }
@@ -55,13 +55,13 @@ export const useBattleStore = defineStore('battle', () => {
 
     try {
       const tracks = await spotifyStore.getPlaylistTracks(playlistId)
-      
+
       if (tracks.length < 2) {
         throw new Error('Playlist must have at least 2 tracks with preview available')
       }
 
       availableTracks.value = tracks
-      
+
       // Initialize track stats for new tracks
       tracks.forEach(track => {
         if (!trackStats.value.has(track.id)) {
@@ -89,20 +89,20 @@ export const useBattleStore = defineStore('battle', () => {
 
   const loadTrackFromUrl = async (spotifyUrl: string): Promise<SpotifyTrack> => {
     const spotifyStore = useSpotifyStore()
-    
+
     if (!spotifyStore.isAuthenticated) {
       throw new Error('User not authenticated with Spotify')
     }
 
     const trackId = TrackParsingService.extractTrackId(spotifyUrl)
-    
+
     if (!trackId) {
       throw new Error('Invalid Spotify track URL')
     }
 
     try {
       const track = await spotifyStore.getTrackById(trackId)
-      
+
       if (!track.preview_url) {
         throw new Error('Track has no preview available')
       }
@@ -111,7 +111,7 @@ export const useBattleStore = defineStore('battle', () => {
       const existingTrack = availableTracks.value.find(t => t.id === track.id)
       if (!existingTrack) {
         availableTracks.value.push(track)
-        
+
         // Initialize track stats
         if (!trackStats.value.has(track.id)) {
           trackStats.value.set(track.id, {
@@ -124,7 +124,7 @@ export const useBattleStore = defineStore('battle', () => {
             lastBattleAt: new Date()
           })
         }
-        
+
         saveToStorage()
       }
 
@@ -184,8 +184,8 @@ export const useBattleStore = defineStore('battle', () => {
 
     // Update track statistics
     const winnerTrackId = trackId
-    const loserTrackId = currentBattle.value.trackA.id === trackId 
-      ? currentBattle.value.trackB.id 
+    const loserTrackId = currentBattle.value.trackA.id === trackId
+      ? currentBattle.value.trackB.id
       : currentBattle.value.trackA.id
 
     updateTrackStats(winnerTrackId, 'win')
@@ -231,7 +231,7 @@ export const useBattleStore = defineStore('battle', () => {
     trackStats.value.clear()
     availableTracks.value = []
     error.value = null
-    
+
     clearStorage()
   }
 
@@ -252,7 +252,7 @@ export const useBattleStore = defineStore('battle', () => {
     const winBonus = stats.wins * 50
     const losspenalty = stats.losses * 25
     const participationBonus = stats.totalBattles * 10
-    
+
     return Math.max(0, baseScore + winBonus - losspenalty + participationBonus)
   }
 
@@ -283,14 +283,14 @@ export const useBattleStore = defineStore('battle', () => {
       if (!stored) return
 
       const data = JSON.parse(stored)
-      
+
       // Check if data is recent (within 7 days)
       const isRecent = data.timestamp && (Date.now() - data.timestamp) < 7 * 24 * 60 * 60 * 1000
-      
+
       if (isRecent) {
         battleHistory.value = data.battleHistory || []
         availableTracks.value = data.availableTracks || []
-        
+
         if (data.trackStats) {
           trackStats.value = new Map(data.trackStats)
         }
