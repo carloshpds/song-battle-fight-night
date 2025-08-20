@@ -1,0 +1,45 @@
+{
+  "name": "music-battle-fight-night",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint . --ext .vue,.js,.jsx,.ts,.tsx --fix",
+    "format": "prettier --write .",
+    "type-check": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@mdi/font": "^7.4.47",
+    "@types/howler": "^2.2.12",
+    "@vueuse/core": "^13.7.0",
+    "axios": "^1.11.0",
+    "howler": "^2.2.4",
+    "pinia": "^3.0.3",
+    "vue": "^3.5.18",
+    "vue-router": "4",
+    "vuetify": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "@typescript-eslint/parser": "^8.40.0",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/eslint-config-typescript": "^14.6.0",
+    "@vue/test-utils": "^2.4.6",
+    "@vue/tsconfig": "^0.7.0",
+    "eslint": "^9.33.0",
+    "jsdom": "^26.1.0",
+    "prettier": "^3.6.2",
+    "sass": "^1.90.0",
+    "typescript": "~5.8.3",
+    "vite": "^5.4.19",
+    "vitest": "^3.2.4",
+    "vue-tsc": "^3.0.5"
+  }
+}
