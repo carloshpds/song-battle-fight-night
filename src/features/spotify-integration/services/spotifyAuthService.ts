@@ -2,6 +2,7 @@ import type { SpotifyAuthState, SpotifyTokenResponse, SpotifyAuthError } from '.
 
 export class SpotifyAuthService {
   private static readonly CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID
+  private static readonly CLIENT_SECRET = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET
   private static readonly REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI
   private static readonly SCOPES = import.meta.env.VITE_SPOTIFY_SCOPES
   private static readonly AUTH_URL = 'https://accounts.spotify.com/authorize'
@@ -13,6 +14,10 @@ export class SpotifyAuthService {
   static generateAuthUrl(): string {
     if (!this.CLIENT_ID) {
       throw new Error('Spotify Client ID not configured')
+    }
+
+    if (!this.CLIENT_SECRET) {
+      throw new Error('Spotify Client Secret not configured')
     }
 
     const state = this.generateRandomString(16)
@@ -44,16 +49,19 @@ export class SpotifyAuthService {
     // Clean up stored state
     localStorage.removeItem('spotify_auth_state')
 
+    // Create Basic Auth header with client credentials
+    const authHeader = btoa(`${this.CLIENT_ID}:${this.CLIENT_SECRET}`)
+
     const response = await fetch(this.TOKEN_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${authHeader}`
       },
       body: new URLSearchParams({
         grant_type: 'authorization_code',
         code,
-        redirect_uri: this.REDIRECT_URI,
-        client_id: this.CLIENT_ID,
+        redirect_uri: this.REDIRECT_URI
       })
     })
 
@@ -70,15 +78,18 @@ export class SpotifyAuthService {
    * Refresh access token using refresh token
    */
   static async refreshAccessToken(refreshToken: string): Promise<SpotifyAuthState> {
+    // Create Basic Auth header with client credentials
+    const authHeader = btoa(`${this.CLIENT_ID}:${this.CLIENT_SECRET}`)
+
     const response = await fetch(this.TOKEN_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${authHeader}`
       },
       body: new URLSearchParams({
         grant_type: 'refresh_token',
-        refresh_token: refreshToken,
-        client_id: this.CLIENT_ID,
+        refresh_token: refreshToken
       })
     })
 
