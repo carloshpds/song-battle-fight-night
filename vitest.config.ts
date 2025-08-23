@@ -1,11 +1,14 @@
 import { defineConfig } from 'vitest/config'
+import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
+  plugins: [vue()],
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: ['./tests/setup.ts']
+    setupFiles: ['./tests/setup.ts'],
+    css: true
   },
   resolve: {
     alias: {
