@@ -6,7 +6,7 @@
       'battle-card-left': side === 'left',
       'battle-card-right': side === 'right'
     }"
-    elevation="4"
+    elevation="0"
     @click="handleCardClick"
   >
     <!-- Spotify Embed -->
@@ -72,18 +72,6 @@
 
     <!-- Track Information -->
     <v-card-text class="track-info pa-4">
-      <h3 class="track-title text-h6 mb-2" :title="track.name">
-        {{ track.name }}
-      </h3>
-
-      <p class="track-artist text-body-2 text-medium-emphasis mb-2" :title="artistNames">
-        {{ artistNames }}
-      </p>
-
-      <p class="track-album text-caption text-medium-emphasis mb-2" :title="track.album.name">
-        {{ track.album.name }}
-      </p>
-
       <!-- Track Details -->
       <div class="track-details d-flex align-center mb-2">
         <v-chip
@@ -236,15 +224,10 @@ const formatDuration = (ms: number): string => {
 <style scoped>
 .battle-music-card {
   position: relative;
-  transition: all 0.3s ease-in-out;
   cursor: pointer;
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.battle-music-card:hover {
-  transform: translateY(-4px);
 }
 
 .battle-music-card.winner {

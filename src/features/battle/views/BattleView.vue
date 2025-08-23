@@ -1,26 +1,109 @@
 <template>
   <v-container fluid class="pa-0">
-    <!-- Header -->
-    <v-app-bar color="primary" dark elevation="4">
-      <v-app-bar-title>
-        <v-icon class="mr-2">mdi-sword-cross</v-icon>
-        Music Battle Fight Night
-      </v-app-bar-title>
 
-      <v-spacer />
+    <!-- Tournament Progress Section -->
+    <div v-if="isTournamentActive && tournamentProgress" class="tournament-progress-section">
+      <v-container>
+        <v-card color="surface" class="mb-4">
+          <v-card-title class="d-flex align-center">
+            <v-icon class="mr-2" color="primary">mdi-tournament</v-icon>
+            Tournament: {{ activeTournament?.name }}
+          </v-card-title>
 
-      <v-btn
-        icon="mdi-playlist-plus"
-        @click="$router.push('/spotify/import')"
-        title="Import more music"
-      />
+          <v-card-text>
+            <v-row>
+              <v-col cols="12" md="8">
+                <div class="mb-3">
+                  <div class="d-flex justify-space-between text-caption mb-1">
+                    <span>Progress</span>
+                    <span>{{ tournamentProgress.progressPercentage.toFixed(1) }}%</span>
+                  </div>
+                  <v-progress-linear
+                    :model-value="tournamentProgress.progressPercentage"
+                    color="primary"
+                    height="8"
+                    rounded
+                  />
+                </div>
 
-      <v-btn
-        icon="mdi-trophy"
-        @click="showLeaderboard = true"
-        title="View leaderboard"
-      />
-    </v-app-bar>
+                <v-row class="text-center">
+                  <v-col cols="3">
+                    <div class="text-h6">{{ tournamentProgress.currentRound }}</div>
+                    <div class="text-caption text-medium-emphasis">Round</div>
+                  </v-col>
+                  <v-col cols="3">
+                    <div class="text-h6">{{ tournamentProgress.remainingTracks.length }}</div>
+                    <div class="text-caption text-medium-emphasis">Remaining</div>
+                  </v-col>
+                  <v-col cols="3">
+                    <div class="text-h6">{{ tournamentProgress.battlesCompleted }}</div>
+                    <div class="text-caption text-medium-emphasis">Battles</div>
+                  </v-col>
+                  <v-col cols="3">
+                    <div class="text-h6">{{ tournamentProgress.eliminatedTracks.length }}</div>
+                    <div class="text-caption text-medium-emphasis">Eliminated</div>
+                  </v-col>
+                </v-row>
+              </v-col>
+
+              <v-col cols="12" md="4" class="d-flex align-center justify-end">
+                <v-chip
+                  color="success"
+                  variant="tonal"
+                  size="large"
+                  prepend-icon="mdi-crown"
+                >
+                  Tournament Active
+                </v-chip>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+      </v-container>
+    </div>
+
+    <!-- Tournament Completed Section -->
+    <div v-if="isTournamentCompleted && tournamentChampion" class="tournament-completed-section">
+      <v-container>
+        <v-card color="success" class="mb-4" variant="tonal">
+          <v-card-title class="d-flex align-center">
+            <v-icon class="mr-2" color="success">mdi-trophy</v-icon>
+            Tournament Complete!
+          </v-card-title>
+
+          <v-card-text>
+            <div class="text-center py-4">
+              <v-avatar size="80" class="mb-4">
+                <v-img :src="tournamentChampion.album.images[0]?.url" />
+              </v-avatar>
+              <h2 class="text-h5 mb-2">🏆 {{ tournamentChampion.name }}</h2>
+              <p class="text-body-1 mb-4">by {{ tournamentChampion.artists.map(a => a.name).join(', ') }}</p>
+
+              <div class="d-flex justify-center gap-3 mt-6">
+                <v-btn
+                  color="primary"
+                  size="large"
+                  @click="recreateTournament"
+                  prepend-icon="mdi-restart"
+                >
+                  Recreate Tournament
+                </v-btn>
+
+                <v-btn
+                  color="success"
+                  size="large"
+                  variant="outlined"
+                  @click="$router.push('/spotify/import')"
+                  prepend-icon="mdi-plus"
+                >
+                  New Tournament
+                </v-btn>
+              </div>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-container>
+    </div>
 
     <!-- Main Battle Area -->
     <div class="battle-container">
@@ -50,12 +133,8 @@
       </div>
 
       <!-- Battle Arena -->
-      <div v-else-if="currentBattle" class="battle-arena">
+      <div v-else-if="currentBattle && !isTournamentCompleted" class="battle-arena">
         <div class="battle-header text-center mb-6">
-          <h1 class="text-h4 mb-2">Choose Your Champion!</h1>
-          <p class="text-body-1 text-medium-emphasis">
-            Battle {{ battleCount + 1 }} • {{ availableTracks.length }} tracks loaded
-          </p>
         </div>
 
         <v-row class="battle-cards" no-gutters justify="center">
@@ -97,7 +176,7 @@
         </v-row>
 
         <!-- Battle Controls -->
-        <div class="battle-controls text-center mt-6">
+        <!-- <div class="battle-controls text-center mt-6">
           <v-btn
             variant="outlined"
             color="secondary"
@@ -108,20 +187,11 @@
             Skip Battle
           </v-btn>
 
-          <v-btn
-            v-if="currentBattle.winner"
-            color="success"
-            size="large"
-            @click="nextBattle"
-          >
-            <v-icon class="mr-2">mdi-sword-cross</v-icon>
-            Next Battle
-          </v-btn>
-        </div>
+        </div> -->
       </div>
 
       <!-- No Current Battle -->
-      <div v-else class="text-center py-12">
+      <div v-else-if="!isTournamentCompleted" class="text-center py-12">
         <v-icon size="64" class="mb-4 text-primary">mdi-sword-cross</v-icon>
         <h2 class="text-h5 mb-4">Ready for Battle!</h2>
         <p class="text-body-1 mb-6 text-medium-emphasis">
@@ -169,12 +239,14 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBattleStore } from '../stores/battleStore'
 import { useSpotifyStore } from '@/features/spotify-integration/stores/spotifyStore'
+import { useTournamentStore } from '@/features/tournament/stores/tournamentStore'
 import BattleMusicCard from '../components/BattleMusicCard.vue'
 import LeaderboardDialog from '../components/LeaderboardDialog.vue'
 
 const router = useRouter()
 const battleStore = useBattleStore()
 const spotifyStore = useSpotifyStore()
+const tournamentStore = useTournamentStore()
 
 // Reactive state
 const showStats = ref(false)
@@ -186,6 +258,13 @@ const availableTracks = computed(() => battleStore.availableTracks)
 const battleCount = computed(() => battleStore.battleCount)
 const isLoading = computed(() => battleStore.isLoading)
 const error = computed(() => battleStore.error)
+
+// Tournament computeds
+const activeTournament = computed(() => tournamentStore.activeTournament)
+const tournamentProgress = computed(() => activeTournament.value?.progress)
+const isTournamentActive = computed(() => activeTournament.value?.status === 'active')
+const isTournamentCompleted = computed(() => activeTournament.value?.status === 'completed')
+const tournamentChampion = computed(() => activeTournament.value?.champion)
 
 // Methods
 const initializeBattle = () => {
@@ -215,6 +294,10 @@ const startNewBattle = () => {
 const voteForTrack = (trackId: string) => {
   try {
     battleStore.voteForTrack(trackId)
+
+    setTimeout(() => {
+      startNewBattle()
+    }, 2000)
   } catch (err) {
     console.error('Failed to vote for track:', err)
   }
@@ -229,8 +312,32 @@ const nextBattle = () => {
   startNewBattle()
 }
 
+const recreateTournament = async () => {
+  if (!activeTournament.value) return
+
+  try {
+    // Create a new tournament with the same tracks
+    const newTournament = await tournamentStore.createTournament({
+      playlistId: activeTournament.value.playlistId,
+      playlistName: `${activeTournament.value.name} (Rematch)`,
+      tracks: activeTournament.value.tracks
+    })
+
+    console.log('🎯 New tournament created:', newTournament.name)
+
+    // Initialize battle with new tournament
+    initializeBattle()
+  } catch (err) {
+    console.error('Failed to recreate tournament:', err)
+    // Show error using battleStore's error handling
+    battleStore.clearError()
+  }
+}
+
 // Initialize on mount
 onMounted(() => {
+  // Initialize both stores
+  tournamentStore.initializeTournaments()
   initializeBattle()
 })
 </script>
@@ -273,5 +380,15 @@ onMounted(() => {
 
 .battle-controls {
   margin-top: 32px;
+}
+
+.tournament-progress-section {
+  background: rgba(var(--v-theme-surface-variant), 0.1);
+  border-bottom: 1px solid rgba(var(--v-theme-outline), 0.12);
+}
+
+.tournament-completed-section {
+  background: linear-gradient(135deg, rgba(var(--v-theme-success), 0.1) 0%, rgba(var(--v-theme-success), 0.05) 100%);
+  border-bottom: 1px solid rgba(var(--v-theme-success), 0.2);
 }
 </style>
