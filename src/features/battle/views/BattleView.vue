@@ -1,10 +1,10 @@
 <template>
-  <v-container fluid class="pa-0">
+  <v-container fluid class="pa-0" color="surface">
 
     <!-- Tournament Progress Section -->
     <div v-if="isTournamentActive && tournamentProgress" class="tournament-progress-section">
       <v-container>
-        <v-card color="surface" class="mb-4">
+        <v-card class="mb-4">
           <v-card-title class="d-flex align-center justify-space-between">
             <div class="d-flex align-center">
               <v-icon class="mr-2" color="primary">mdi-tournament</v-icon>
@@ -416,6 +416,10 @@ onMounted(() => {
 }
 
 .tournament-progress-section {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
   background: rgba(var(--v-theme-surface-variant), 0.1);
   border-bottom: 1px solid rgba(var(--v-theme-outline), 0.12);
 }
