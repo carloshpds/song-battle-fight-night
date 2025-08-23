@@ -6,7 +6,7 @@
       'battle-card-left': side === 'left',
       'battle-card-right': side === 'right'
     }"
-    elevation="0"
+    elevation="2"
     @click="handleCardClick"
   >
     <!-- Spotify Embed -->
