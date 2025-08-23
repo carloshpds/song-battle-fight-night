@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="pa-0" color="surface">
+  <v-container fluid class="pa-0">
 
     <!-- Tournament Progress Section -->
     <div v-if="isTournamentActive && tournamentProgress" class="tournament-progress-section">
@@ -32,41 +32,11 @@
           </v-card-title>
 
           <v-card-text>
-            <v-row>
-              <v-col cols="12" md="12">
-                <div class="mb-3">
-                  <div class="d-flex justify-space-between text-caption mb-1">
-                    <span>Progress</span>
-                    <span>{{ tournamentProgress.progressPercentage.toFixed(1) }}%</span>
-                  </div>
-                  <v-progress-linear
-                    :model-value="tournamentProgress.progressPercentage"
-                    color="primary"
-                    height="8"
-                    rounded
-                  />
-                </div>
-
-                <v-row class="text-center">
-                  <v-col cols="3">
-                    <div class="text-h6">{{ tournamentProgress.currentRound }}</div>
-                    <div class="text-caption text-medium-emphasis">Round</div>
-                  </v-col>
-                  <v-col cols="3">
-                    <div class="text-h6">{{ tournamentProgress.remainingTracks.length }}</div>
-                    <div class="text-caption text-medium-emphasis">Remaining</div>
-                  </v-col>
-                  <v-col cols="3">
-                    <div class="text-h6">{{ tournamentProgress.battlesCompleted }}</div>
-                    <div class="text-caption text-medium-emphasis">Battles</div>
-                  </v-col>
-                  <v-col cols="3">
-                    <div class="text-h6">{{ tournamentProgress.eliminatedTracks.length }}</div>
-                    <div class="text-caption text-medium-emphasis">Eliminated</div>
-                  </v-col>
-                </v-row>
-              </v-col>
-            </v-row>
+             <TournamentProgress
+                :progress="tournamentProgress"
+                :champion="activeTournament?.champion"
+                class="mb-3"
+              />
           </v-card-text>
         </v-card>
       </v-container>
@@ -272,6 +242,7 @@ import { useAudio } from '@/shared/composables/useAudio'
 import BattleMusicCard from '../components/BattleMusicCard.vue'
 import LeaderboardDialog from '../components/LeaderboardDialog.vue'
 import TournamentResultsModal from '@/features/tournament/components/TournamentResultsModal.vue'
+import TournamentProgress from '@/features/tournament/components/TournamentProgress.vue'
 
 const router = useRouter()
 const battleStore = useBattleStore()
