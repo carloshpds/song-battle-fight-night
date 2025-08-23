@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useSpotifyStore } from '@/features/spotify-integration/stores/spotifyStore'
 import { TournamentService } from '../services/tournamentService'
+import { battleTournamentService } from '@/features/battle/services/battleTournamentService'
 import type {
   Tournament,
   TournamentProgress,
@@ -16,6 +17,13 @@ export const useTournamentStore = defineStore('tournament', () => {
   const activeTournament = ref<Tournament | null>(null)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
+
+  // Register this store with the battle service to avoid circular imports
+  const storeInstance = {
+    activeTournament,
+    onBattleCompleted: (battle: Battle) => onBattleCompleted(battle)
+  }
+  battleTournamentService.registerTournamentStore(() => storeInstance)
 
   // Computed
   const activeTournaments = computed(() =>
@@ -98,12 +106,24 @@ export const useTournamentStore = defineStore('tournament', () => {
 
     const tournament = activeTournament.value
 
+    console.log('🏆 Tournament battle completed:', {
+      winner: battle.winner,
+      remainingTracks: tournament.progress.remainingTracks.length,
+      eliminatedTracks: tournament.progress.eliminatedTracks.length
+    })
+
     // Add battle to tournament history
     tournament.battles.push(battle)
     tournament.lastBattleAt = new Date()
 
     // Update tournament progress
     updateTournamentProgress(tournament, battle)
+
+    console.log('🏆 Tournament updated:', {
+      remainingTracks: tournament.progress.remainingTracks.length,
+      eliminatedTracks: tournament.progress.eliminatedTracks.length,
+      currentRound: tournament.progress.currentRound
+    })
 
     // Check if tournament is completed
     if (TournamentService.shouldCompleteTournament(tournament)) {

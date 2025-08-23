@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useSpotifyStore } from '@/features/spotify-integration/stores/spotifyStore'
 import { TrackParsingService } from '@/features/spotify-integration/services/trackParsingService'
+import { battleTournamentService } from '../services/battleTournamentService'
 import type { Battle, BattleVote, TrackStats, LeaderboardEntry, BattleSession } from '../types/battle.types'
 import type { SpotifyTrack } from '@/features/spotify-integration/types/spotify.types'
 
@@ -136,8 +137,30 @@ export const useBattleStore = defineStore('battle', () => {
   }
 
   const startNewBattle = (): Battle => {
-    if (availableTracks.value.length < 2) {
-      throw new Error('Need at least 2 tracks to start a battle')
+    // Check if we should get tracks from tournament
+    const tournamentTracks = battleTournamentService.getTournamentBattlePair()
+
+    let trackA: SpotifyTrack
+    let trackB: SpotifyTrack
+
+    if (tournamentTracks) {
+      // Use tournament tracks
+      [trackA, trackB] = tournamentTracks
+      console.log('🎵 Starting tournament battle:', {
+        trackA: trackA.name,
+        trackB: trackB.name,
+        tournamentActive: battleTournamentService.hasActiveTournament()
+      })
+    } else {
+      // Use available tracks for regular battle
+      if (availableTracks.value.length < 2) {
+        throw new Error('Need at least 2 tracks to start a battle')
+      }
+
+      const shuffled = [...availableTracks.value].sort(() => Math.random() - 0.5)
+      trackA = shuffled[0]
+      trackB = shuffled[1]
+      console.log('🎵 Starting regular battle:', { trackA: trackA.name, trackB: trackB.name })
     }
 
     // ✅ FIX: Clear any existing completed battle before starting new one
@@ -148,10 +171,6 @@ export const useBattleStore = defineStore('battle', () => {
     if (currentBattle.value) {
       throw new Error('A battle is already in progress')
     }
-
-    // Get two random tracks that haven't battled too much recently
-    const shuffled = getBalancedTrackPair()
-    const [trackA, trackB] = shuffled
 
     const battle: Battle = {
       id: generateId(),
@@ -200,17 +219,11 @@ export const useBattleStore = defineStore('battle', () => {
     battleHistory.value.push({ ...currentBattle.value })
 
     // ✅ NEW: Notify tournament store about completed battle
-    try {
-      // Dynamic import to avoid circular dependency
-      import('@/features/tournament/stores/tournamentStore').then(({ useTournamentStore }) => {
-        const tournamentStore = useTournamentStore()
-        tournamentStore.onBattleCompleted(currentBattle.value!)
-      }).catch(error => {
-        console.warn('Failed to notify tournament store:', error)
-      })
-    } catch (error) {
-      console.warn('Failed to notify tournament store:', error)
-    }
+    console.log('🎵 Battle completed:', {
+      winner: trackId,
+      tournamentActive: battleTournamentService.hasActiveTournament()
+    })
+    battleTournamentService.notifyBattleCompletion(currentBattle.value)
 
     // ✅ FIX: Don't clear current battle immediately
     // Keep the battle with winner to show results
@@ -273,13 +286,6 @@ export const useBattleStore = defineStore('battle', () => {
     const participationBonus = stats.totalBattles * 10
 
     return Math.max(0, baseScore + winBonus - losspenalty + participationBonus)
-  }
-
-  const getBalancedTrackPair = (): [SpotifyTrack, SpotifyTrack] => {
-    // Simple random selection for now
-    // TODO: Implement more sophisticated pairing based on battle frequency
-    const shuffled = [...availableTracks.value].sort(() => 0.5 - Math.random())
-    return [shuffled[0], shuffled[1]]
   }
 
   const saveToStorage = (): void => {
