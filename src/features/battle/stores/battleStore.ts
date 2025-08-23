@@ -169,7 +169,7 @@ export const useBattleStore = defineStore('battle', () => {
     }
 
     if (currentBattle.value) {
-      throw new Error('A battle is already in progress')
+      currentBattle.value = null
     }
 
     const battle: Battle = {
