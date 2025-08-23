@@ -12,7 +12,7 @@
 
           <v-card-text>
             <v-row>
-              <v-col cols="12" md="8">
+              <v-col cols="12" md="12">
                 <div class="mb-3">
                   <div class="d-flex justify-space-between text-caption mb-1">
                     <span>Progress</span>
@@ -44,17 +44,6 @@
                     <div class="text-caption text-medium-emphasis">Eliminated</div>
                   </v-col>
                 </v-row>
-              </v-col>
-
-              <v-col cols="12" md="4" class="d-flex align-center justify-end">
-                <v-chip
-                  color="success"
-                  variant="tonal"
-                  size="large"
-                  prepend-icon="mdi-crown"
-                >
-                  Tournament Active
-                </v-chip>
               </v-col>
             </v-row>
           </v-card-text>
