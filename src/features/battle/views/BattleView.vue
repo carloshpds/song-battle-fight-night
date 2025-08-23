@@ -5,9 +5,19 @@
     <div v-if="isTournamentActive && tournamentProgress" class="tournament-progress-section">
       <v-container>
         <v-card color="surface" class="mb-4">
-          <v-card-title class="d-flex align-center">
-            <v-icon class="mr-2" color="primary">mdi-tournament</v-icon>
-            Tournament: {{ activeTournament?.name }}
+          <v-card-title class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center">
+              <v-icon class="mr-2" color="primary">mdi-tournament</v-icon>
+              Tournament: {{ activeTournament?.name }}
+            </div>
+            <v-btn
+              variant="outlined"
+              size="small"
+              prepend-icon="mdi-chart-line"
+              @click="showTournamentResults = true"
+            >
+              View Results
+            </v-btn>
           </v-card-title>
 
           <v-card-text>
@@ -55,9 +65,20 @@
     <div v-if="isTournamentCompleted && tournamentChampion" class="tournament-completed-section">
       <v-container>
         <v-card color="success" class="mb-4" variant="tonal">
-          <v-card-title class="d-flex align-center">
-            <v-icon class="mr-2" color="success">mdi-trophy</v-icon>
-            Tournament Complete!
+          <v-card-title class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center">
+              <v-icon class="mr-2" color="success">mdi-trophy</v-icon>
+              Tournament Complete!
+            </div>
+            <v-btn
+              variant="outlined"
+              size="small"
+              prepend-icon="mdi-chart-line"
+              color="success"
+              @click="showTournamentResults = true"
+            >
+              View Results
+            </v-btn>
           </v-card-title>
 
           <v-card-text>
@@ -220,6 +241,12 @@
 
     <!-- Leaderboard Dialog -->
     <leaderboard-dialog v-model="showLeaderboard" />
+
+    <!-- Tournament Results Modal -->
+    <tournament-results-modal
+      v-model="showTournamentResults"
+      :tournament="activeTournament"
+    />
   </v-container>
 </template>
 
@@ -231,6 +258,7 @@ import { useSpotifyStore } from '@/features/spotify-integration/stores/spotifySt
 import { useTournamentStore } from '@/features/tournament/stores/tournamentStore'
 import BattleMusicCard from '../components/BattleMusicCard.vue'
 import LeaderboardDialog from '../components/LeaderboardDialog.vue'
+import TournamentResultsModal from '@/features/tournament/components/TournamentResultsModal.vue'
 
 const router = useRouter()
 const battleStore = useBattleStore()
@@ -240,6 +268,7 @@ const tournamentStore = useTournamentStore()
 // Reactive state
 const showStats = ref(false)
 const showLeaderboard = ref(false)
+const showTournamentResults = ref(false)
 
 // Computed
 const currentBattle = computed(() => battleStore.currentBattle)
@@ -290,15 +319,6 @@ const voteForTrack = (trackId: string) => {
   } catch (err) {
     console.error('Failed to vote for track:', err)
   }
-}
-
-const skipBattle = () => {
-  battleStore.skipBattle()
-  startNewBattle()
-}
-
-const nextBattle = () => {
-  startNewBattle()
 }
 
 const recreateTournament = async () => {
