@@ -15,7 +15,7 @@
       <v-img
         :src="track.album.images[0]?.url"
         :alt="track.name"
-        height="300"
+        height="220"
         cover
         class="battle-card-image"
       >
@@ -63,7 +63,7 @@
     </div>
 
     <!-- Track Information -->
-    <v-card-text class="track-info">
+    <v-card-text class="track-info pa-4">
       <h3 class="track-title text-h6 mb-2" :title="track.name">
         {{ track.name }}
       </h3>
@@ -72,12 +72,12 @@
         {{ artistNames }}
       </p>
 
-      <p class="track-album text-caption text-medium-emphasis mb-3" :title="track.album.name">
+      <p class="track-album text-caption text-medium-emphasis mb-2" :title="track.album.name">
         {{ track.album.name }}
       </p>
 
       <!-- Track Details -->
-      <div class="track-details d-flex align-center mb-3">
+      <div class="track-details d-flex align-center mb-2">
         <v-chip
           size="small"
           variant="tonal"
@@ -106,7 +106,7 @@
       </div>
 
       <!-- Progress Bar (when playing) -->
-      <div v-if="isPlaying && progress !== undefined" class="progress-container mb-3">
+      <div v-if="isPlaying && progress !== undefined" class="progress-container mb-2">
         <v-progress-linear
           :model-value="progress"
           color="primary"
@@ -126,7 +126,7 @@
         variant="text"
         size="small"
         color="success"
-        class="mb-3"
+        class="mb-2"
       >
         <v-icon class="mr-1">mdi-spotify</v-icon>
         Open in Spotify
@@ -241,6 +241,7 @@ const formatDuration = (ms: number): string => {
   transition: all 0.3s ease-in-out;
   cursor: pointer;
   height: 100%;
+  max-height: 550px; /* ✅ Limita altura máxima do card */
   display: flex;
   flex-direction: column;
 }
@@ -363,13 +364,29 @@ const formatDuration = (ms: number): string => {
   margin-top: auto;
 }
 
+@media (max-width: 1200px) {
+  .battle-music-card {
+    max-height: 500px; /* ✅ Altura intermediária para tablets */
+  }
+  
+  .card-image-container {
+    height: 200px; /* ✅ Altura intermediária da imagem */
+  }
+}
+
 @media (max-width: 960px) {
   .battle-music-card {
     margin-bottom: 16px;
+    max-height: 450px; /* ✅ Reduz altura máxima em mobile */
   }
 
   .card-image-container {
-    height: 250px;
+    height: 180px; /* ✅ Reduz altura da imagem em mobile */
+  }
+  
+  /* ✅ Reduz padding do conteúdo em mobile */
+  .battle-music-card .track-info {
+    padding: 12px !important;
   }
 }
 </style>

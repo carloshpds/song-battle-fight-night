@@ -58,9 +58,9 @@
           </p>
         </div>
 
-        <v-row class="battle-cards" no-gutters>
+        <v-row class="battle-cards" no-gutters justify="center">
           <!-- Track A -->
-          <v-col cols="12" md="6" class="pa-3">
+          <v-col cols="12" md="5" class="pa-2">
             <battle-music-card
               :track="currentBattle.trackA"
               side="left"
@@ -73,7 +73,7 @@
           </v-col>
 
           <!-- VS Divider -->
-          <v-col cols="12" md="auto" class="d-flex align-center justify-center pa-3">
+          <v-col cols="12" md="2" class="d-flex align-center justify-center pa-2">
             <div class="vs-divider">
               <v-chip
                 size="x-large"
@@ -87,7 +87,7 @@
           </v-col>
 
           <!-- Track B -->
-          <v-col cols="12" md="6" class="pa-3">
+          <v-col cols="12" md="5" class="pa-2">
             <battle-music-card
               :track="currentBattle.trackB"
               side="right"
@@ -255,7 +255,7 @@ onMounted(() => {
 
 <style scoped>
 .battle-container {
-  max-width: 1200px;
+  max-width: 1000px; /* ✅ Reduz largura máxima do container */
   margin: 0 auto;
   padding: 24px;
   min-height: calc(100vh - 64px);
@@ -266,7 +266,7 @@ onMounted(() => {
 }
 
 .battle-cards {
-  min-height: 500px;
+  min-height: 450px; /* ✅ Reduz altura mínima dos cards */
 }
 
 .vs-divider {
@@ -275,7 +275,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100px;
+  min-height: 80px; /* ✅ Reduz altura mínima do divisor */
 }
 
 @media (max-width: 960px) {
