@@ -10,14 +10,25 @@
               <v-icon class="mr-2" color="primary">mdi-tournament</v-icon>
               Tournament: {{ activeTournament?.name }}
             </div>
-            <v-btn
-              variant="outlined"
-              size="small"
-              prepend-icon="mdi-chart-line"
-              @click="showTournamentResults = true"
-            >
-              View Results
-            </v-btn>
+            <div>
+              <v-btn
+                variant="text"
+                size="small"
+                prepend-icon="mdi-arrow-left"
+                @click="$router.push('/tournament')"
+              >
+                View Tournaments
+              </v-btn>
+              <v-btn
+                class="ml-1"
+                variant="outlined"
+                size="small"
+                prepend-icon="mdi-chart-line"
+                @click="showTournamentResults = true"
+              >
+                View Results
+              </v-btn>
+            </div>
           </v-card-title>
 
           <v-card-text>
@@ -368,7 +379,6 @@ onMounted(() => {
 }
 
 .vs-divider {
-  writing-mode: vertical-lr;
   text-orientation: mixed;
   display: flex;
   align-items: center;
