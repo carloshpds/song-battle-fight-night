@@ -65,8 +65,6 @@
               :track="currentBattle.trackA"
               side="left"
               @vote="voteForTrack"
-              @play="handleTrackPlay"
-              :is-playing="isTrackPlaying(currentBattle.trackA.id)"
               :can-vote="!currentBattle.winner"
               :winner-id="currentBattle.winner"
             />
@@ -92,8 +90,6 @@
               :track="currentBattle.trackB"
               side="right"
               @vote="voteForTrack"
-              @play="handleTrackPlay"
-              :is-playing="isTrackPlaying(currentBattle.trackB.id)"
               :can-vote="!currentBattle.winner"
               :winner-id="currentBattle.winner"
             />
@@ -173,14 +169,12 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBattleStore } from '../stores/battleStore'
 import { useSpotifyStore } from '@/features/spotify-integration/stores/spotifyStore'
-import { useSpotifyAudio } from '@/features/audio-player/composables/useSpotifyAudio'
 import BattleMusicCard from '../components/BattleMusicCard.vue'
 import LeaderboardDialog from '../components/LeaderboardDialog.vue'
 
 const router = useRouter()
 const battleStore = useBattleStore()
 const spotifyStore = useSpotifyStore()
-const { currentTrack, playTrack } = useSpotifyAudio()
 
 // Reactive state
 const showStats = ref(false)
@@ -233,18 +227,6 @@ const skipBattle = () => {
 
 const nextBattle = () => {
   startNewBattle()
-}
-
-const handleTrackPlay = async (track: any) => {
-  try {
-    await playTrack(track)
-  } catch (err) {
-    console.error('Failed to play track:', err)
-  }
-}
-
-const isTrackPlaying = (trackId: string): boolean => {
-  return currentTrack.value?.id === trackId
 }
 
 // Initialize on mount

@@ -2,7 +2,6 @@
   <v-card
     class="battle-music-card"
     :class="{
-      'playing': isPlaying,
       'winner': isWinner,
       'battle-card-left': side === 'left',
       'battle-card-right': side === 'right'
@@ -10,56 +9,65 @@
     elevation="4"
     @click="handleCardClick"
   >
-    <!-- Album Art -->
-    <div class="card-image-container">
-      <v-img
-        :src="track.album.images[0]?.url"
-        :alt="track.name"
-        height="220"
-        cover
-        class="battle-card-image"
-      >
-        <!-- Play Overlay -->
-        <div class="play-overlay">
-          <v-btn
-            icon
-            size="x-large"
-            color="white"
-            elevation="4"
-            @click.stop="handlePlayClick"
-            :loading="isLoading"
-          >
-            <v-icon size="large">
-              {{ isPlaying ? 'mdi-pause' : 'mdi-play' }}
+    <!-- Spotify Embed -->
+    <div class="spotify-embed-container">
+      <iframe
+        v-if="embedUrl"
+        :src="embedUrl"
+        width="100%"
+        :height="embedHeight"
+        frameBorder="0"
+        allowfullscreen
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"
+        style="border-radius: 12px;"
+        class="spotify-embed"
+        :title="`Spotify preview for ${track.name} by ${artistNames}`"
+      />
+
+      <!-- Fallback when no embed available -->
+      <div v-else class="embed-fallback">
+        <v-img
+          :src="track.album.images[0]?.url"
+          :alt="track.name"
+          :height="embedHeight"
+          cover
+          class="fallback-image"
+        >
+          <div class="fallback-overlay">
+            <v-icon size="x-large" color="white" class="mb-2">
+              mdi-music-off
             </v-icon>
-          </v-btn>
-        </div>
+            <p class="text-white text-center">
+              Preview not available
+            </p>
+            <v-btn
+              :href="track.external_urls.spotify"
+              target="_blank"
+              variant="elevated"
+              color="success"
+              size="small"
+              class="mt-2"
+            >
+              <v-icon class="mr-1">mdi-spotify</v-icon>
+              Open in Spotify
+            </v-btn>
+          </div>
+        </v-img>
+      </div>
 
-        <!-- Winner Overlay -->
-        <div v-if="isWinner" class="winner-overlay">
-          <v-chip
-            color="success"
-            size="large"
-            variant="elevated"
-            class="winner-chip"
-          >
-            <v-icon class="mr-1">mdi-trophy</v-icon>
-            Winner!
-          </v-chip>
-        </div>
-
-        <!-- Preview Indicator -->
-        <div v-if="isVoteDisabled" class="no-preview-overlay">
-          <v-chip
-            color="warning"
-            size="small"
-            variant="elevated"
-          >
-            <v-icon class="mr-1" size="small">mdi-music-off</v-icon>
-            No Preview
-          </v-chip>
-        </div>
-      </v-img>
+      <!-- Winner Overlay -->
+      <div v-if="isWinner" class="winner-overlay">
+        <v-chip
+          color="success"
+          size="large"
+          variant="elevated"
+          class="winner-chip"
+        >
+          <v-icon class="mr-1">mdi-trophy</v-icon>
+          Winner!
+        </v-chip>
+      </div>
     </div>
 
     <!-- Track Information -->
@@ -103,20 +111,6 @@
         >
           {{ track.popularity }}% Popular
         </v-chip>
-      </div>
-
-      <!-- Progress Bar (when playing) -->
-      <div v-if="isPlaying && progress !== undefined" class="progress-container mb-2">
-        <v-progress-linear
-          :model-value="progress"
-          color="primary"
-          height="4"
-          rounded
-        />
-        <div class="d-flex justify-space-between text-caption mt-1">
-          <span>{{ formattedCurrentTime }}</span>
-          <span>{{ formattedDuration }}</span>
-        </div>
       </div>
 
       <!-- Spotify Link -->
@@ -166,36 +160,29 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useDisplay } from 'vuetify'
 import type { SpotifyTrack } from '@/features/spotify-integration/types/spotify.types'
 
 interface Props {
   track: SpotifyTrack
   side: 'left' | 'right'
-  isPlaying?: boolean
   canVote?: boolean
-  isLoading?: boolean
-  progress?: number
-  formattedCurrentTime?: string
-  formattedDuration?: string
-  winnerId?: string | null // ✅ Add winner prop to show battle results
+  winnerId?: string | null
 }
 
 interface Emits {
   (e: 'vote', trackId: string): void
-  (e: 'play', track: SpotifyTrack): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  isPlaying: false,
   canVote: true,
-  isLoading: false,
-  progress: undefined,
-  formattedCurrentTime: '0:00',
-  formattedDuration: '0:30',
-  winnerId: null // ✅ Default value for winnerId
+  winnerId: null
 })
 
 const emit = defineEmits<Emits>()
+
+// Vuetify display breakpoints
+const { mobile, smAndUp } = useDisplay()
 
 // Computed
 const artistNames = computed(() => {
@@ -203,25 +190,36 @@ const artistNames = computed(() => {
 })
 
 const isWinner = computed(() => {
-  // ✅ Check if this track is the winner of the battle
   return props.winnerId === props.track.id
 })
 
 const isVoteDisabled = computed(() => {
-  return !props.track.preview_url && !props.track.external_urls.spotify
+  // Se não tem preview_url nem external_urls, desabilita voto
+  return !props.track.preview_url && !props.track.external_urls?.spotify
+})
+
+// Generate Spotify embed URL from track ID
+const embedUrl = computed(() => {
+  if (!props.track.id) return null
+
+  // Extract track ID if it's a full Spotify URI
+  const trackId = props.track.id.includes(':')
+    ? props.track.id.split(':').pop()
+    : props.track.id
+
+  return `https://open.spotify.com/embed/track/${trackId}?utm_source=generator&theme=0`
+})
+
+// Responsive embed height
+const embedHeight = computed(() => {
+  if (mobile.value) return '280'
+  if (!smAndUp.value) return '320'
+  return '352'
 })
 
 // Methods
 const handleCardClick = () => {
-  if (props.track.preview_url && props.canVote) {
-    handlePlayClick()
-  }
-}
-
-const handlePlayClick = () => {
-  if (props.track.preview_url) {
-    emit('play', props.track)
-  }
+  // Card click behavior - can be used for analytics or other actions
 }
 
 const handleVote = () => {
@@ -241,18 +239,12 @@ const formatDuration = (ms: number): string => {
   transition: all 0.3s ease-in-out;
   cursor: pointer;
   height: 100%;
-  max-height: 550px; /* ✅ Limita altura máxima do card */
   display: flex;
   flex-direction: column;
 }
 
 .battle-music-card:hover {
   transform: translateY(-4px);
-}
-
-.battle-music-card.playing {
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
-  border: 2px solid rgb(139, 92, 246);
 }
 
 .battle-music-card.winner {
@@ -268,39 +260,40 @@ const formatDuration = (ms: number): string => {
   transform-origin: left center;
 }
 
-.card-image-container {
+.spotify-embed-container {
   position: relative;
   flex-shrink: 0;
 }
 
-.battle-card-image {
-  transition: filter 0.3s ease-in-out;
+.spotify-embed {
+  display: block;
+  transition: opacity 0.3s ease-in-out;
 }
 
-.play-overlay {
+/* Fallback styles when embed is not available */
+.embed-fallback {
+  position: relative;
+}
+
+.fallback-image {
+  filter: brightness(0.7);
+}
+
+.fallback-overlay {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  opacity: 0;
-  transition: opacity 0.3s ease-in-out;
-}
-
-.battle-music-card:hover .play-overlay,
-.battle-music-card.playing .play-overlay {
-  opacity: 1;
+  text-align: center;
+  z-index: 2;
 }
 
 .winner-overlay {
   position: absolute;
   top: 16px;
   left: 16px;
-}
-
-.no-preview-overlay {
-  position: absolute;
-  top: 16px;
-  right: 16px;
+  z-index: 10;
+  pointer-events: none;
 }
 
 .winner-chip {
@@ -360,33 +353,31 @@ const formatDuration = (ms: number): string => {
   gap: 4px;
 }
 
-.progress-container {
-  margin-top: auto;
-}
-
+/* Responsive adjustments */
 @media (max-width: 1200px) {
-  .battle-music-card {
-    max-height: 500px; /* ✅ Altura intermediária para tablets */
-  }
-
-  .card-image-container {
-    height: 200px; /* ✅ Altura intermediária da imagem */
+  .track-info {
+    padding: 16px !important;
   }
 }
 
 @media (max-width: 960px) {
   .battle-music-card {
     margin-bottom: 16px;
-    max-height: 450px; /* ✅ Reduz altura máxima em mobile */
   }
 
-  .card-image-container {
-    height: 180px; /* ✅ Reduz altura da imagem em mobile */
-  }
-
-  /* ✅ Reduz padding do conteúdo em mobile */
-  .battle-music-card .track-info {
+  .track-info {
     padding: 12px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .winner-overlay {
+    top: 8px;
+    left: 8px;
+  }
+
+  .winner-chip {
+    font-size: 0.875rem;
   }
 }
 </style>
