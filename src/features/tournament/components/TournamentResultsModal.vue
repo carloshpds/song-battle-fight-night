@@ -8,14 +8,14 @@
   >
     <v-card v-if="tournament" class="tournament-results-modal">
       <!-- Header -->
-      <v-card-title class="d-flex align-center pa-6 bg-surface-variant">
+      <v-card-title class="d-flex align-center pa-6">
         <v-avatar class="mr-3" size="48">
           <v-img
             v-if="tournament.playlistData?.images?.[0]?.url"
             :src="tournament.playlistData.images[0].url"
             :alt="tournament.name"
           />
-          <v-icon v-else color="primary">mdi-tournament</v-icon>
+          <v-icon v-else>mdi-tournament</v-icon>
         </v-avatar>
 
         <div class="flex-grow-1">
