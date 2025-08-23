@@ -199,6 +199,19 @@ export const useBattleStore = defineStore('battle', () => {
     // Save to history
     battleHistory.value.push({ ...currentBattle.value })
 
+    // ✅ NEW: Notify tournament store about completed battle
+    try {
+      // Dynamic import to avoid circular dependency
+      import('@/features/tournament/stores/tournamentStore').then(({ useTournamentStore }) => {
+        const tournamentStore = useTournamentStore()
+        tournamentStore.onBattleCompleted(currentBattle.value!)
+      }).catch(error => {
+        console.warn('Failed to notify tournament store:', error)
+      })
+    } catch (error) {
+      console.warn('Failed to notify tournament store:', error)
+    }
+
     // ✅ FIX: Don't clear current battle immediately
     // Keep the battle with winner to show results
     // It will be cleared when starting next battle

@@ -177,10 +177,10 @@
                     <v-btn
                       color="success"
                       size="large"
-                      @click="startBattleWithTracks"
+                      @click="startTournamentWithTracks"
                       block
                     >
-                      Start Battle with These Tracks
+                      Create Tournament with These Tracks
                     </v-btn>
                   </div>
 
@@ -201,13 +201,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSpotifyStore } from '../stores/spotifyStore'
-import { useBattleStore } from '@/features/battle/stores/battleStore'
+import { useTournamentStore } from '@/features/tournament/stores/tournamentStore'
 import { TrackParsingService } from '../services/trackParsingService'
 import type { SpotifyPlaylist, SpotifyTrack } from '../types/spotify.types'
 
 const router = useRouter()
 const spotifyStore = useSpotifyStore()
-const battleStore = useBattleStore()
+const tournamentStore = useTournamentStore()
 
 // Reactive state
 const activeTab = ref('playlist')
@@ -262,11 +262,21 @@ const selectPlaylist = async (playlist: SpotifyPlaylist) => {
   selectedPlaylistId.value = playlist.id
 
   try {
-    await battleStore.loadTracksFromPlaylist(playlist.id)
-    router.push('/battle')
+    // Load tracks from playlist
+    const tracks = await spotifyStore.getPlaylistTracks(playlist.id)
+
+    // Create tournament instead of going directly to battle
+    await tournamentStore.createTournament({
+      playlistId: playlist.id,
+      playlistName: playlist.name,
+      tracks: tracks
+    })
+
+    // Navigate to tournaments list
+    router.push('/tournament')
   } catch (error) {
-    console.error('Error loading playlist tracks:', error)
-    playlistError.value = error instanceof Error ? error.message : 'Failed to load playlist tracks'
+    console.error('Error creating tournament:', error)
+    playlistError.value = error instanceof Error ? error.message : 'Failed to create tournament'
   } finally {
     selectedPlaylistId.value = null
   }
@@ -288,17 +298,20 @@ const parseUrls = async () => {
 
         if (parsed.type === 'track') {
           try {
-            const track = await battleStore.loadTrackFromUrl(url)
-            if (!parsedTracks.value.find(t => t.id === track.id)) {
-              parsedTracks.value.push(track)
+            const trackId = TrackParsingService.extractTrackId(url)
+            if (trackId) {
+              const track = await spotifyStore.getTrackById(trackId)
+              if (track && track.preview_url && !parsedTracks.value.find(t => t.id === track.id)) {
+                parsedTracks.value.push(track)
+              }
             }
           } catch (error) {
             console.warn(`Failed to load track from URL: ${url}`, error)
           }
         } else if (parsed.type === 'playlist') {
           try {
-            const tracks = await battleStore.loadTracksFromPlaylist(parsed.id!)
-            tracks.forEach(track => {
+            const tracks = await spotifyStore.getPlaylistTracks(parsed.id!)
+            tracks.forEach((track: SpotifyTrack) => {
               if (!parsedTracks.value.find(t => t.id === track.id)) {
                 parsedTracks.value.push(track)
               }
@@ -326,8 +339,22 @@ const clearUrls = () => {
   urlParseError.value = null
 }
 
-const startBattleWithTracks = () => {
-  router.push('/battle')
+const startTournamentWithTracks = async () => {
+  if (parsedTracks.value.length === 0) return
+
+  try {
+    // Create tournament with parsed tracks
+    await tournamentStore.createTournament({
+      playlistId: 'custom-' + Date.now(),
+      playlistName: `Custom Tournament (${parsedTracks.value.length} tracks)`,
+      tracks: parsedTracks.value
+    })
+
+    router.push('/tournament')
+  } catch (error) {
+    console.error('Error creating tournament from URLs:', error)
+    urlParseError.value = error instanceof Error ? error.message : 'Failed to create tournament'
+  }
 }
 
 // Initialize

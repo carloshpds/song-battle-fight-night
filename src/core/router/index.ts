@@ -4,11 +4,12 @@ import type { RouteRecordRaw } from 'vue-router'
 // Import feature routes
 import battleRoutes from '@/features/battle/routes/battle.routes'
 import spotifyRoutes from '@/features/spotify-integration/routes/spotify.routes'
+import tournamentRoutes from '@/features/tournament/routes/tournament.routes'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    redirect: '/spotify/connect'
+    redirect: '/tournament'
   },
   {
     path: '/home',
@@ -21,6 +22,7 @@ const routes: RouteRecordRaw[] = [
   // Feature routes
   ...battleRoutes,
   ...spotifyRoutes,
+  ...tournamentRoutes,
   // Catch all route - 404
   {
     path: '/:pathMatch(.*)*',
