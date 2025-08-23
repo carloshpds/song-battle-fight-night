@@ -368,7 +368,7 @@ const formatDuration = (ms: number): string => {
   .battle-music-card {
     max-height: 500px; /* ✅ Altura intermediária para tablets */
   }
-  
+
   .card-image-container {
     height: 200px; /* ✅ Altura intermediária da imagem */
   }
@@ -383,7 +383,7 @@ const formatDuration = (ms: number): string => {
   .card-image-container {
     height: 180px; /* ✅ Reduz altura da imagem em mobile */
   }
-  
+
   /* ✅ Reduz padding do conteúdo em mobile */
   .battle-music-card .track-info {
     padding: 12px !important;
