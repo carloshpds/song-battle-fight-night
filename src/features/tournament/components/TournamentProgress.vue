@@ -40,7 +40,7 @@
         variant="tonal"
         size="small"
       >
-        Round {{ progress.currentRound }} / {{ progress.totalRounds }}
+        Phase {{ progress.currentRound }} / {{ progress.totalRounds }}
       </v-chip>
     </div>
 
