@@ -12,6 +12,15 @@ vi.mock('../stores/battleStore')
 vi.mock('@/features/spotify-integration/stores/spotifyStore')
 vi.mock('@/features/tournament/stores/tournamentStore')
 
+// Mock the audio composable
+vi.mock('@/shared/composables/useAudio', () => ({
+  useAudio: () => ({
+    isSupported: true,
+    playVoteSuccessSound: vi.fn(),
+    playButtonClickSound: vi.fn(),
+  })
+}))
+
 // Mock Vuetify components
 vi.mock('vuetify', () => ({
   default: {},
@@ -19,7 +28,7 @@ vi.mock('vuetify', () => ({
 
 const mockBattleStore = {
   currentBattle: null,
-  availableTracks: [],
+  availableTracks: [] as any[],
   battleCount: 0,
   isLoading: false,
   error: null,
@@ -87,6 +96,7 @@ describe('BattleView', () => {
           'v-divider': { template: '<hr />' },
           'battle-music-card': { template: '<div></div>' },
           'leaderboard-dialog': { template: '<div></div>' },
+          'tournament-results-modal': { template: '<div></div>' },
         }
       }
     })
@@ -125,6 +135,7 @@ describe('BattleView', () => {
       name: 'Test Tournament',
       playlistId: 'playlist-1',
       status: 'active' as const,
+      tracks: [{ id: '1' }, { id: '2' }, { id: '3' }],
       progress: {
         progressPercentage: 45.5,
         currentRound: 2,

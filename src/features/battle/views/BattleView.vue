@@ -94,7 +94,7 @@
 
           <v-card-text>
             <div class="text-center py-4">
-              <v-avatar size="80" class="mb-4">
+              <v-avatar size="400" class="mb-4">
                 <v-img :src="tournamentChampion.album.images[0]?.url" />
               </v-avatar>
               <h2 class="text-h5 mb-2">🏆 {{ tournamentChampion.name }}</h2>
@@ -111,6 +111,7 @@
                 </v-btn>
 
                 <v-btn
+                  class="ml-2"
                   color="success"
                   size="large"
                   variant="outlined"
@@ -267,6 +268,7 @@ import { useRouter } from 'vue-router'
 import { useBattleStore } from '../stores/battleStore'
 import { useSpotifyStore } from '@/features/spotify-integration/stores/spotifyStore'
 import { useTournamentStore } from '@/features/tournament/stores/tournamentStore'
+import { useAudio } from '@/shared/composables/useAudio'
 import BattleMusicCard from '../components/BattleMusicCard.vue'
 import LeaderboardDialog from '../components/LeaderboardDialog.vue'
 import TournamentResultsModal from '@/features/tournament/components/TournamentResultsModal.vue'
@@ -275,6 +277,7 @@ const router = useRouter()
 const battleStore = useBattleStore()
 const spotifyStore = useSpotifyStore()
 const tournamentStore = useTournamentStore()
+const { playVoteSuccessSound } = useAudio()
 
 // Reactive state
 const showStats = ref(false)
@@ -322,6 +325,9 @@ const startNewBattle = () => {
 
 const voteForTrack = (trackId: string) => {
   try {
+    // Play satisfying vote sound
+    playVoteSuccessSound()
+
     battleStore.voteForTrack(trackId)
 
     setTimeout(() => {
