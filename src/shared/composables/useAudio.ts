@@ -55,28 +55,8 @@ export function useAudio() {
   }
 
   const playVoteSuccessSound = () => {
-    // Using a Web Audio API generated sound for satisfaction
-    if (!isSupported.value) return
-
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-
-    // Create a satisfying "ding" sound
-    const oscillator = audioContext.createOscillator()
-    const gainNode = audioContext.createGain()
-
-    oscillator.connect(gainNode)
-    gainNode.connect(audioContext.destination)
-
-    // Configuration for a pleasant "success" sound
-    oscillator.frequency.setValueAtTime(800, audioContext.currentTime) // High frequency
-    oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1) // Descending tone
-
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3)
-
-    oscillator.type = 'sine'
-    oscillator.start(audioContext.currentTime)
-    oscillator.stop(audioContext.currentTime + 0.3)
+    // Play the victory sound effect
+    playAudio('/audio/vote-success.mp3', { volume: 0.6 })
   }
 
   const playButtonClickSound = () => {
@@ -102,11 +82,17 @@ export function useAudio() {
     oscillator.stop(audioContext.currentTime + 0.05)
   }
 
+  const playTournamentCompleteSound = () => {
+    // Play the tournament celebration sound
+    playAudio('/audio/tournament-complete.mp3', { volume: 0.7 })
+  }
+
   return {
     isSupported,
     preloadAudio,
     playAudio,
     playVoteSuccessSound,
-    playButtonClickSound
+    playButtonClickSound,
+    playTournamentCompleteSound
   }
 }

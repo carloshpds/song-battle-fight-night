@@ -263,7 +263,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBattleStore } from '../stores/battleStore'
 import { useSpotifyStore } from '@/features/spotify-integration/stores/spotifyStore'
@@ -277,7 +277,7 @@ const router = useRouter()
 const battleStore = useBattleStore()
 const spotifyStore = useSpotifyStore()
 const tournamentStore = useTournamentStore()
-const { playVoteSuccessSound } = useAudio()
+const { playVoteSuccessSound, playTournamentCompleteSound } = useAudio()
 
 // Reactive state
 const showStats = ref(false)
@@ -359,6 +359,14 @@ const recreateTournament = async () => {
     battleStore.clearError()
   }
 }
+
+// Watch for tournament completion
+watch(isTournamentCompleted, (completed) => {
+  if (completed && tournamentChampion.value) {
+    // Play celebration sound when tournament is completed
+    playTournamentCompleteSound()
+  }
+})
 
 // Initialize on mount
 onMounted(() => {
