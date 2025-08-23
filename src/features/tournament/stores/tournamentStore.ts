@@ -84,8 +84,12 @@ export const useTournamentStore = defineStore('tournament', () => {
     }
   }
 
+  const getTournamentById = (tournamentId: string): Tournament | null => {
+    return tournaments.value.find(t => t.id === tournamentId) || null
+  }
+
   const continueTournament = (tournamentId: string): Tournament => {
-    const tournament = tournaments.value.find(t => t.id === tournamentId)
+    const tournament = getTournamentById(tournamentId)
 
     if (!tournament) {
       throw new Error('Tournament not found')
@@ -258,6 +262,7 @@ export const useTournamentStore = defineStore('tournament', () => {
     deleteTournament,
     getNextMatchup,
     resetTournamentData,
-    clearError
+    clearError,
+    getTournamentById
   }
 })

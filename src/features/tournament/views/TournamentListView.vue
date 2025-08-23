@@ -191,6 +191,11 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <tournament-results-modal
+      v-model="showTournamentResults"
+      :tournament="activeTournamentInHistory"
+    />
   </v-container>
 </template>
 
@@ -201,6 +206,7 @@ import { useTournamentStore } from '../stores/tournamentStore'
 import { useBattleStore } from '@/features/battle/stores/battleStore'
 import TournamentCard from '../components/TournamentCard.vue'
 import type { Tournament } from '../types/tournament.types'
+import TournamentResultsModal from '../components/TournamentResultsModal.vue'
 
 const router = useRouter()
 const tournamentStore = useTournamentStore()
@@ -213,6 +219,8 @@ const sortBy = ref('newest')
 const currentPage = ref(1)
 const itemsPerPage = 6
 const isDeleting = ref(false)
+const showTournamentResults = ref(false)
+const activeTournamentInHistory = ref<Tournament | null>(null)
 
 const deleteDialog = ref<{
   show: boolean
@@ -287,18 +295,18 @@ const paginatedTournaments = computed(() => {
 // Methods
 const continueTournament = async (tournamentId: string) => {
   try {
-    const tournament = tournamentStore.continueTournament(tournamentId)
-
-    if (tournament.status === 'completed') {
-      // Navigate to tournament detail view to show results
-      router.push(`/tournament/${tournamentId}`)
+    const tournament = tournamentStore.getTournamentById(tournamentId)
+    if (tournament?.status === 'completed') {
+      activeTournamentInHistory.value = tournament
+      showTournamentResults.value = true
     } else {
+      const continuedTournament = tournamentStore.continueTournament(tournamentId)
       // Get next matchup and start battle
-      const nextMatchup = tournamentStore.getNextMatchup(tournament)
+      const nextMatchup = tournamentStore.getNextMatchup(continuedTournament)
 
       if (nextMatchup) {
         // Set up battle store with tournament tracks
-        await battleStore.loadTracksFromPlaylist(tournament.playlistId)
+        await battleStore.loadTracksFromPlaylist(continuedTournament.playlistId)
         router.push('/battle')
       } else {
         console.error('Cannot determine next matchup for tournament')

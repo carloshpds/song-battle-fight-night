@@ -312,6 +312,8 @@ const initializeBattle = () => {
   // If no tracks available, redirect to import
   if (availableTracks.value.length === 0) {
     router.push('/spotify/import')
+  } else {
+    startNewBattle()
   }
 }
 
