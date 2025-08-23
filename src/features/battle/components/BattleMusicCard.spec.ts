@@ -140,7 +140,7 @@ describe('BattleMusicCard', () => {
       // Look for vote button
       const buttons = wrapper.findAll('button')
       const voteButton = buttons.find(btn => btn.text().includes('Vote'))
-      
+
       if (voteButton) {
         await voteButton.trigger('click')
         expect(wrapper.emitted('vote')).toBeTruthy()
