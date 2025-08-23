@@ -100,6 +100,8 @@ export const useTournamentStore = defineStore('tournament', () => {
     }
 
     activeTournament.value = tournament
+
+    saveToStorage()
     return tournament
   }
 
