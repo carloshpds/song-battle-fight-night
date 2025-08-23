@@ -143,8 +143,7 @@
         v-for="tournament in paginatedTournaments"
         :key="tournament.id"
         cols="12"
-        sm="6"
-        lg="4"
+        md="6"
       >
         <TournamentCard
           :tournament="tournament"
