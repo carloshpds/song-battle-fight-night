@@ -68,6 +68,7 @@
               @play="handleTrackPlay"
               :is-playing="isTrackPlaying(currentBattle.trackA.id)"
               :can-vote="!currentBattle.winner"
+              :winner-id="currentBattle.winner"
             />
           </v-col>
 
@@ -94,6 +95,7 @@
               @play="handleTrackPlay"
               :is-playing="isTrackPlaying(currentBattle.trackB.id)"
               :can-vote="!currentBattle.winner"
+              :winner-id="currentBattle.winner"
             />
           </v-col>
         </v-row>

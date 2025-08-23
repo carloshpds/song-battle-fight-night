@@ -177,6 +177,7 @@ interface Props {
   progress?: number
   formattedCurrentTime?: string
   formattedDuration?: string
+  winnerId?: string | null // ✅ Add winner prop to show battle results
 }
 
 interface Emits {
@@ -190,7 +191,8 @@ const props = withDefaults(defineProps<Props>(), {
   isLoading: false,
   progress: undefined,
   formattedCurrentTime: '0:00',
-  formattedDuration: '0:30'
+  formattedDuration: '0:30',
+  winnerId: null // ✅ Default value for winnerId
 })
 
 const emit = defineEmits<Emits>()
@@ -201,8 +203,8 @@ const artistNames = computed(() => {
 })
 
 const isWinner = computed(() => {
-  // This would be determined by the parent component
-  return false // TODO: Implement winner logic
+  // ✅ Check if this track is the winner of the battle
+  return props.winnerId === props.track.id
 })
 
 const isVoteDisabled = computed(() => {
@@ -330,6 +332,7 @@ const formatDuration = (ms: number): string => {
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -338,6 +341,7 @@ const formatDuration = (ms: number): string => {
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -345,6 +349,7 @@ const formatDuration = (ms: number): string => {
 .track-album {
   display: -webkit-box;
   -webkit-line-clamp: 1;
+  line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

@@ -140,6 +140,11 @@ export const useBattleStore = defineStore('battle', () => {
       throw new Error('Need at least 2 tracks to start a battle')
     }
 
+    // ✅ FIX: Clear any existing completed battle before starting new one
+    if (currentBattle.value?.winner) {
+      currentBattle.value = null
+    }
+
     if (currentBattle.value) {
       throw new Error('A battle is already in progress')
     }
@@ -194,8 +199,9 @@ export const useBattleStore = defineStore('battle', () => {
     // Save to history
     battleHistory.value.push({ ...currentBattle.value })
 
-    // Clear current battle
-    currentBattle.value = null
+    // ✅ FIX: Don't clear current battle immediately
+    // Keep the battle with winner to show results
+    // It will be cleared when starting next battle
 
     // Save to storage
     saveToStorage()
