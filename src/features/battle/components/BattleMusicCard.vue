@@ -1,5 +1,5 @@
 <template>
-  <v-card
+  <div
     class="battle-music-card"
     :class="{
       'winner': isWinner,
@@ -70,80 +70,82 @@
       </div>
     </div>
 
-    <!-- Track Information -->
-    <v-card-text class="track-info pa-4">
-      <!-- Track Details -->
-      <div class="track-details d-flex align-center mb-2">
-        <v-chip
-          size="small"
-          variant="tonal"
-          class="mr-2"
-        >
-          {{ formatDuration(track.duration_ms) }}
-        </v-chip>
+    <v-card class="mt-4" color="gray">
+      <!-- Track Information -->
+      <v-card-text class="track-info pa-4">
+        <!-- Track Details -->
+        <div class="track-details d-flex align-center mb-2">
+          <v-chip
+            size="small"
+            variant="tonal"
+            class="mr-2"
+          >
+            {{ formatDuration(track.duration_ms) }}
+          </v-chip>
 
-        <v-chip
-          v-if="track.explicit"
-          size="small"
-          color="warning"
-          variant="tonal"
-          class="mr-2"
-        >
-          Explicit
-        </v-chip>
+          <v-chip
+            v-if="track.explicit"
+            size="small"
+            color="warning"
+            variant="tonal"
+            class="mr-2"
+          >
+            Explicit
+          </v-chip>
 
-        <v-chip
+          <v-chip
+            size="small"
+            variant="tonal"
+            color="primary"
+          >
+            {{ track.popularity }}% Popular
+          </v-chip>
+        </div>
+
+        <!-- Spotify Link -->
+        <v-btn
+          :href="track.external_urls.spotify"
+          target="_blank"
+          variant="text"
           size="small"
-          variant="tonal"
+          color="success"
+          class="mb-2"
+        >
+          <v-icon class="mr-1">mdi-spotify</v-icon>
+          Open in Spotify
+        </v-btn>
+      </v-card-text>
+
+      <!-- Vote Button -->
+      <v-card-actions v-if="canVote" class="pt-0">
+        <v-btn
           color="primary"
+          size="large"
+          block
+          variant="elevated"
+          @click.stop="handleVote"
+          :disabled="isVoteDisabled"
         >
-          {{ track.popularity }}% Popular
-        </v-chip>
-      </div>
+          <v-icon class="mr-2">mdi-heart</v-icon>
+          Vote for This Track
+        </v-btn>
+      </v-card-actions>
 
-      <!-- Spotify Link -->
-      <v-btn
-        :href="track.external_urls.spotify"
-        target="_blank"
-        variant="text"
-        size="small"
-        color="success"
-        class="mb-2"
-      >
-        <v-icon class="mr-1">mdi-spotify</v-icon>
-        Open in Spotify
-      </v-btn>
-    </v-card-text>
-
-    <!-- Vote Button -->
-    <v-card-actions v-if="canVote" class="pt-0">
-      <v-btn
-        color="primary"
-        size="large"
-        block
-        variant="elevated"
-        @click.stop="handleVote"
-        :disabled="isVoteDisabled"
-      >
-        <v-icon class="mr-2">mdi-heart</v-icon>
-        Vote for This Track
-      </v-btn>
-    </v-card-actions>
-
-    <!-- Vote Result -->
-    <v-card-actions v-else-if="isWinner" class="pt-0">
-      <v-alert
-        type="success"
-        variant="tonal"
-        class="ma-0"
-        density="compact"
-        block
-      >
-        <v-icon class="mr-2">mdi-trophy</v-icon>
-        You voted for this track!
-      </v-alert>
-    </v-card-actions>
-  </v-card>
+      <!-- Vote Result -->
+      <v-card-actions v-else-if="isWinner" class="pt-0">
+        <v-alert
+          type="success"
+          variant="tonal"
+          class="ma-0"
+          density="compact"
+          block
+        >
+          <v-icon class="mr-2">mdi-trophy</v-icon>
+          You voted for this track!
+        </v-alert>
+      </v-card-actions>
+    </v-card>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -228,6 +230,7 @@ const formatDuration = (ms: number): string => {
   height: 100%;
   display: flex;
   flex-direction: column;
+  border-radius: 10px;
 }
 
 .battle-music-card.winner {
