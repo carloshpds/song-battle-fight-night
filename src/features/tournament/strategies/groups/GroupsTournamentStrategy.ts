@@ -1,7 +1,7 @@
-import type { 
-  TournamentStrategy, 
+import type {
+  TournamentStrategy,
   TournamentStrategyConfig,
-  BattleMatchup 
+  BattleMatchup
 } from '../base/TournamentStrategy.interface'
 import type { Tournament, TournamentProgress } from '../../types/tournament.types'
 import type { SpotifyTrack } from '@/features/spotify-integration/types/spotify.types'
@@ -44,7 +44,7 @@ interface GroupsData {
 export class GroupsTournamentStrategy implements TournamentStrategy {
   readonly name = 'Group Stage'
   readonly description = 'Tournament divided into groups where all tracks in each group face each other. Best from each group advance to playoffs.'
-  
+
   readonly config: TournamentStrategyConfig = {
     requireMinimumTracks: 6, // Minimum for 2 groups of 3
     allowSkipping: false,
@@ -58,7 +58,7 @@ export class GroupsTournamentStrategy implements TournamentStrategy {
   initializeTournament(tracks: SpotifyTrack[]): TournamentProgress {
     const data = this.initializeGroupsData(tracks)
     const totalBattles = this.calculateTotalBattles(data)
-    
+
     return {
       totalTracks: tracks.length,
       battlesCompleted: 0,
@@ -110,7 +110,7 @@ export class GroupsTournamentStrategy implements TournamentStrategy {
   completeTournament(tournament: Tournament): Tournament {
     const updatedTournament = { ...tournament }
     const data = this.getStrategyData(tournament) as GroupsData
-    
+
     updatedTournament.status = 'completed'
     updatedTournament.completedAt = new Date()
 
@@ -154,7 +154,7 @@ export class GroupsTournamentStrategy implements TournamentStrategy {
     for (let i = 0; i < numGroups; i++) {
       const groupTracks = shuffledTracks.slice(i * groupSize, (i + 1) * groupSize)
       const groupId = `group-${i + 1}`
-      
+
       const group: Group = {
         id: groupId,
         name: `Group ${String.fromCharCode(65 + i)}`, // A, B, C, etc.
@@ -205,40 +205,40 @@ export class GroupsTournamentStrategy implements TournamentStrategy {
     for (const group of data.groups) {
       groupBattles += group.fixtures.length
     }
-    
+
     // Estimate playoff battles (assuming single elimination)
     const totalQualifiers = data.groups.length * data.qualifiersPerGroup
     const playoffBattles = Math.max(0, totalQualifiers - 1)
-    
+
     return groupBattles + playoffBattles
   }
 
   private handleGroupBattle(data: GroupsData, battle: Battle, progress: TournamentProgress): void {
     const currentGroup = data.groups[data.currentGroupIndex]
     const fixture = currentGroup.fixtures[data.currentFixtureIndex]
-    
+
     if (fixture && battle.winner) {
       fixture.completed = true
       fixture.winnerId = battle.winner
-      
+
       // Update group standings
       this.updateGroupStandings(currentGroup, battle)
-      
+
       data.currentFixtureIndex++
-      
+
       // Check if current group is completed
       if (data.currentFixtureIndex >= currentGroup.fixtures.length) {
         currentGroup.completed = true
         data.currentGroupIndex++
         data.currentFixtureIndex = 0
-        
+
         // Check if all groups are completed
         if (data.currentGroupIndex >= data.groups.length) {
           this.startPlayoffPhase(data)
           progress.currentRound = 2
         }
       }
-      
+
       progress.battlesRemaining = this.calculateRemainingBattles(data)
     }
   }
@@ -246,14 +246,14 @@ export class GroupsTournamentStrategy implements TournamentStrategy {
   private handlePlayoffBattle(data: GroupsData, battle: Battle, progress: TournamentProgress): void {
     const loserId = battle.trackA.id === battle.winner ? battle.trackB.id : battle.trackA.id
     const loserTrack = data.playoffTracks.find(t => t.id === loserId)
-    
+
     if (loserTrack) {
       // Remove loser from playoff tracks
       data.playoffTracks = data.playoffTracks.filter(t => t.id !== loserId)
       progress.eliminatedTracks.push(loserTrack)
       progress.remainingTracks = data.playoffTracks
     }
-    
+
     progress.battlesRemaining = Math.max(0, data.playoffTracks.length - 1)
   }
 
@@ -288,7 +288,7 @@ export class GroupsTournamentStrategy implements TournamentStrategy {
   private startPlayoffPhase(data: GroupsData): void {
     data.playoffPhase = true
     data.playoffTracks = []
-    
+
     // Get qualifiers from each group
     for (const group of data.groups) {
       const qualifiers = group.standings
@@ -296,23 +296,23 @@ export class GroupsTournamentStrategy implements TournamentStrategy {
         .map(s => s.track)
       data.playoffTracks.push(...qualifiers)
     }
-    
+
     // Shuffle playoff tracks for random bracket
     data.playoffTracks = data.playoffTracks.sort(() => 0.5 - Math.random())
   }
 
   private getGroupMatchup(data: GroupsData): BattleMatchup | null {
     if (data.currentGroupIndex >= data.groups.length) return null
-    
+
     const currentGroup = data.groups[data.currentGroupIndex]
     if (data.currentFixtureIndex >= currentGroup.fixtures.length) return null
-    
+
     const fixture = currentGroup.fixtures[data.currentFixtureIndex]
     const trackA = currentGroup.tracks.find(t => t.id === fixture.trackAId)
     const trackB = currentGroup.tracks.find(t => t.id === fixture.trackBId)
-    
+
     if (!trackA || !trackB) return null
-    
+
     return {
       trackA,
       trackB,
@@ -329,7 +329,7 @@ export class GroupsTournamentStrategy implements TournamentStrategy {
 
   private getPlayoffMatchup(data: GroupsData): BattleMatchup | null {
     if (data.playoffTracks.length < 2) return null
-    
+
     // Simple elimination: take first two tracks
     return {
       trackA: data.playoffTracks[0],
@@ -344,7 +344,7 @@ export class GroupsTournamentStrategy implements TournamentStrategy {
 
   private calculateRemainingBattles(data: GroupsData): number {
     let remaining = 0
-    
+
     if (!data.playoffPhase) {
       // Count remaining group battles
       for (let i = data.currentGroupIndex; i < data.groups.length; i++) {
@@ -355,7 +355,7 @@ export class GroupsTournamentStrategy implements TournamentStrategy {
           remaining += group.fixtures.length
         }
       }
-      
+
       // Add playoff battles
       const totalQualifiers = data.groups.length * data.qualifiersPerGroup
       remaining += Math.max(0, totalQualifiers - 1)
@@ -363,7 +363,7 @@ export class GroupsTournamentStrategy implements TournamentStrategy {
       // Only playoff battles remaining
       remaining = Math.max(0, data.playoffTracks.length - 1)
     }
-    
+
     return remaining
   }
 }

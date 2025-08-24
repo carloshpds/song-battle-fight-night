@@ -1,7 +1,7 @@
-import type { 
-  TournamentStrategy, 
+import type {
+  TournamentStrategy,
   TournamentStrategyConfig,
-  BattleMatchup 
+  BattleMatchup
 } from '../base/TournamentStrategy.interface'
 import type { Tournament, TournamentProgress } from '../../types/tournament.types'
 import type { SpotifyTrack } from '@/features/spotify-integration/types/spotify.types'
@@ -10,7 +10,7 @@ import type { Battle } from '@/features/battle/types/battle.types'
 export class EliminationTournamentStrategy implements TournamentStrategy {
   readonly name = 'Single Elimination'
   readonly description = 'Classic tournament bracket where losing a battle eliminates the track'
-  
+
   readonly config: TournamentStrategyConfig = {
     requireMinimumTracks: 2,
     allowSkipping: true,
@@ -112,7 +112,7 @@ export class EliminationTournamentStrategy implements TournamentStrategy {
   }
 
   canStartBattle(tournament: Tournament): boolean {
-    return tournament.progress.remainingTracks.length >= 2 && 
+    return tournament.progress.remainingTracks.length >= 2 &&
            tournament.status === 'active'
   }
 

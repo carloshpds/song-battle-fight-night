@@ -1,7 +1,7 @@
-import type { 
-  TournamentStrategy, 
+import type {
+  TournamentStrategy,
   TournamentStrategyConfig,
-  BattleMatchup 
+  BattleMatchup
 } from '../base/TournamentStrategy.interface'
 import type { Tournament, TournamentProgress } from '../../types/tournament.types'
 import type { SpotifyTrack } from '@/features/spotify-integration/types/spotify.types'
@@ -40,7 +40,7 @@ interface SwissData {
 export class SwissTournamentStrategy implements TournamentStrategy {
   readonly name = 'Swiss System'
   readonly description = 'Tracks are paired based on similar performance. No elimination, best record after fixed rounds wins.'
-  
+
   readonly config: TournamentStrategyConfig = {
     requireMinimumTracks: 4,
     allowSkipping: false,
@@ -51,7 +51,7 @@ export class SwissTournamentStrategy implements TournamentStrategy {
   initializeTournament(tracks: SpotifyTrack[]): TournamentProgress {
     const totalRounds = this.calculateOptimalRounds(tracks.length)
     const totalBattles = Math.floor(tracks.length / 2) * totalRounds
-    
+
     return {
       totalTracks: tracks.length,
       battlesCompleted: 0,
@@ -73,7 +73,7 @@ export class SwissTournamentStrategy implements TournamentStrategy {
     // Update current pairing
     const currentRound = data.rounds[data.currentRound - 1]
     const pairing = currentRound.pairings[data.currentPairingIndex]
-    
+
     if (pairing) {
       pairing.completed = true
       pairing.winnerId = completedBattle.winner
@@ -148,7 +148,7 @@ export class SwissTournamentStrategy implements TournamentStrategy {
   completeTournament(tournament: Tournament): Tournament {
     const updatedTournament = { ...tournament }
     const data = this.getStrategyData(tournament) as SwissData
-    
+
     updatedTournament.status = 'completed'
     updatedTournament.completedAt = new Date()
 
@@ -180,7 +180,7 @@ export class SwissTournamentStrategy implements TournamentStrategy {
   getStrategyData(tournament: Tournament): Record<string, any> {
     if (!tournament.strategyData.swiss) {
       const totalRounds = this.calculateOptimalRounds(tournament.tracks.length)
-      
+
       tournament.strategyData.swiss = {
         standings: tournament.tracks.map(track => ({
           trackId: track.id,
@@ -229,7 +229,7 @@ export class SwissTournamentStrategy implements TournamentStrategy {
     // Swiss pairing algorithm: pair tracks with similar scores
     for (let i = 0; i < standings.length && paired.size < standings.length - 1; i++) {
       const trackA = standings[i]
-      
+
       if (paired.has(trackA.trackId)) continue
 
       // Find best opponent (similar score, hasn't played before)
@@ -237,7 +237,7 @@ export class SwissTournamentStrategy implements TournamentStrategy {
 
       for (let j = i + 1; j < standings.length; j++) {
         const trackB = standings[j]
-        
+
         if (paired.has(trackB.trackId)) continue
         if (trackA.opponents.includes(trackB.trackId)) continue
 
@@ -262,7 +262,7 @@ export class SwissTournamentStrategy implements TournamentStrategy {
           trackBId: bestOpponent.trackId,
           completed: false
         })
-        
+
         paired.add(trackA.trackId)
         paired.add(bestOpponent.trackId)
       }
@@ -323,7 +323,7 @@ export class SwissTournamentStrategy implements TournamentStrategy {
 
     for (let roundIndex = data.currentRound - 1; roundIndex < data.totalRounds; roundIndex++) {
       const round = data.rounds[roundIndex]
-      
+
       if (round) {
         if (roundIndex === data.currentRound - 1) {
           // Current round: count remaining pairings

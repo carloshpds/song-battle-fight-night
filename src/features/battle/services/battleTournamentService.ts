@@ -57,12 +57,12 @@ export class BattleTournamentService {
 
     try {
       const tournamentStore = this.tournamentStoreGetter()
-      
+
       if (tournamentStore.activeTournament.value &&
           tournamentStore.activeTournament.value.status === 'active') {
-        
+
         const matchup = tournamentStore.getNextMatchup(tournamentStore.activeTournament.value)
-        
+
         if (matchup) {
           return [matchup.trackA, matchup.trackB]
         }

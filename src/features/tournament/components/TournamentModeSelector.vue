@@ -26,7 +26,7 @@
 
       <!-- Configurações específicas do modo -->
       <v-divider class="my-4" />
-      
+
       <div v-if="selectedMode === 'deathmatch'" class="mt-4">
         <h4 class="text-subtitle-1 mb-3">Death Match Settings</h4>
         <v-text-field
@@ -134,15 +134,15 @@ const emit = defineEmits<Emits>()
 const tournamentStore = useTournamentStore()
 
 const selectedMode = ref<TournamentMode>(props.modelValue)
-const deathMatchConfig = ref({ 
+const deathMatchConfig = ref({
   targetScore: 10,
   maxBattles: Math.max(50, props.trackCount * 5)
 })
-const groupsConfig = ref({ 
+const groupsConfig = ref({
   groupSize: 4,
-  qualifiersPerGroup: 2 
+  qualifiersPerGroup: 2
 })
-const swissConfig = ref({ 
+const swissConfig = ref({
   rounds: Math.max(3, Math.ceil(Math.log2(props.trackCount || 4)) + 1)
 })
 
@@ -158,7 +158,7 @@ const calculateRoundRobinBattles = (trackCount: number): number => {
 
 watch(selectedMode, (newMode) => {
   emit('update:modelValue', newMode)
-  
+
   // Emit mode-specific config
   let config = {}
   if (newMode === 'deathmatch') {
@@ -168,7 +168,7 @@ watch(selectedMode, (newMode) => {
   } else if (newMode === 'swiss') {
     config = swissConfig.value
   }
-  
+
   emit('update:config', config)
 })
 
@@ -181,7 +181,7 @@ watch([deathMatchConfig, groupsConfig, swissConfig], () => {
   } else if (selectedMode.value === 'swiss') {
     config = swissConfig.value
   }
-  
+
   emit('update:config', config)
 }, { deep: true })
 

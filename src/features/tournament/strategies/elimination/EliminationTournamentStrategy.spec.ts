@@ -5,17 +5,17 @@ import type { SpotifyTrack } from '@/features/spotify-integration/types/spotify.
 import type { Battle } from '@/features/battle/types/battle.types'
 
 const mockTracks: SpotifyTrack[] = [
-  { 
-    id: '1', 
-    name: 'Track 1', 
-    artists: [{ 
-      name: 'Artist 1', 
+  {
+    id: '1',
+    name: 'Track 1',
+    artists: [{
+      name: 'Artist 1',
       id: 'artist1',
       type: 'artist',
       uri: 'spotify:artist:artist1',
       external_urls: { spotify: 'http://spotify-artist1' }
     }],
-    album: { 
+    album: {
       id: 'album1',
       name: 'Album 1',
       artists: [],
@@ -35,17 +35,17 @@ const mockTracks: SpotifyTrack[] = [
     type: 'track',
     uri: 'spotify:track:1'
   },
-  { 
-    id: '2', 
-    name: 'Track 2', 
-    artists: [{ 
-      name: 'Artist 2', 
+  {
+    id: '2',
+    name: 'Track 2',
+    artists: [{
+      name: 'Artist 2',
       id: 'artist2',
       type: 'artist',
       uri: 'spotify:artist:artist2',
       external_urls: { spotify: 'http://spotify-artist2' }
     }],
-    album: { 
+    album: {
       id: 'album2',
       name: 'Album 2',
       artists: [],
@@ -65,17 +65,17 @@ const mockTracks: SpotifyTrack[] = [
     type: 'track',
     uri: 'spotify:track:2'
   },
-  { 
-    id: '3', 
-    name: 'Track 3', 
-    artists: [{ 
-      name: 'Artist 3', 
+  {
+    id: '3',
+    name: 'Track 3',
+    artists: [{
+      name: 'Artist 3',
       id: 'artist3',
       type: 'artist',
       uri: 'spotify:artist:artist3',
       external_urls: { spotify: 'http://spotify-artist3' }
     }],
-    album: { 
+    album: {
       id: 'album3',
       name: 'Album 3',
       artists: [],
@@ -95,17 +95,17 @@ const mockTracks: SpotifyTrack[] = [
     type: 'track',
     uri: 'spotify:track:3'
   },
-  { 
-    id: '4', 
-    name: 'Track 4', 
-    artists: [{ 
-      name: 'Artist 4', 
+  {
+    id: '4',
+    name: 'Track 4',
+    artists: [{
+      name: 'Artist 4',
       id: 'artist4',
       type: 'artist',
       uri: 'spotify:artist:artist4',
       external_urls: { spotify: 'http://spotify-artist4' }
     }],
-    album: { 
+    album: {
       id: 'album4',
       name: 'Album 4',
       artists: [],

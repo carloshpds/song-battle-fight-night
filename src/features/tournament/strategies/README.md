@@ -34,7 +34,7 @@ src/features/tournament/strategies/
 - **Requirements**: Minimum 2 tracks
 - **Duration**: Until target score or maximum battles reached
 - **Best for**: Extended play sessions, discovering strong performers
-- **Configuration**: 
+- **Configuration**:
   - Target score (default: 10)
   - Maximum battles (default: 50)
 
@@ -236,7 +236,7 @@ The system automatically migrates existing tournaments:
 export class CustomTournamentStrategy implements TournamentStrategy {
   readonly name = 'Custom Tournament'
   readonly description = 'My custom tournament format'
-  
+
   readonly config: TournamentStrategyConfig = {
     requireMinimumTracks: 4,
     allowSkipping: true,

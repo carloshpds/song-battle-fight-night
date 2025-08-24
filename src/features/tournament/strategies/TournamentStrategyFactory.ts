@@ -17,7 +17,7 @@ export class TournamentStrategyFactory {
 
   static getStrategy(mode: TournamentMode): TournamentStrategy {
     const strategyFactory = this.strategies.get(mode)
-    
+
     if (!strategyFactory) {
       console.warn(`Tournament mode '${mode}' not found, using elimination strategy`)
       return new EliminationTournamentStrategy()

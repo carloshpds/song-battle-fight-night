@@ -1,7 +1,7 @@
-import type { 
-  TournamentStrategy, 
+import type {
+  TournamentStrategy,
   TournamentStrategyConfig,
-  BattleMatchup 
+  BattleMatchup
 } from '../base/TournamentStrategy.interface'
 import type { Tournament, TournamentProgress } from '../../types/tournament.types'
 import type { SpotifyTrack } from '@/features/spotify-integration/types/spotify.types'
@@ -33,7 +33,7 @@ interface RoundRobinData {
 export class RoundRobinTournamentStrategy implements TournamentStrategy {
   readonly name = 'Round Robin'
   readonly description = 'All tracks face each other exactly once. Track with most wins becomes champion.'
-  
+
   readonly config: TournamentStrategyConfig = {
     requireMinimumTracks: 3,
     allowSkipping: false,
@@ -43,7 +43,7 @@ export class RoundRobinTournamentStrategy implements TournamentStrategy {
 
   initializeTournament(tracks: SpotifyTrack[]): TournamentProgress {
     const totalBattles = this.calculateTotalBattles(tracks.length)
-    
+
     return {
       totalTracks: tracks.length,
       battlesCompleted: 0,
@@ -101,7 +101,7 @@ export class RoundRobinTournamentStrategy implements TournamentStrategy {
       trackA,
       trackB,
       round: 1,
-      metadata: { 
+      metadata: {
         fixtureIndex: data.currentFixtureIndex,
         totalFixtures: data.fixtures.length,
         battleType: 'roundrobin'
@@ -117,7 +117,7 @@ export class RoundRobinTournamentStrategy implements TournamentStrategy {
   completeTournament(tournament: Tournament): Tournament {
     const updatedTournament = { ...tournament }
     const data = this.getStrategyData(tournament) as RoundRobinData
-    
+
     updatedTournament.status = 'completed'
     updatedTournament.completedAt = new Date()
 
@@ -177,7 +177,7 @@ export class RoundRobinTournamentStrategy implements TournamentStrategy {
 
   private generateFixtures(tracks: SpotifyTrack[]): RoundRobinFixture[] {
     const fixtures: RoundRobinFixture[] = []
-    
+
     for (let i = 0; i < tracks.length; i++) {
       for (let j = i + 1; j < tracks.length; j++) {
         fixtures.push({
@@ -187,7 +187,7 @@ export class RoundRobinTournamentStrategy implements TournamentStrategy {
         })
       }
     }
-    
+
     // Embaralhar fixtures para ordem aleatória
     return fixtures.sort(() => 0.5 - Math.random())
   }

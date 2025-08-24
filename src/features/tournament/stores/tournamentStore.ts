@@ -242,15 +242,15 @@ export const useTournamentStore = defineStore('tournament', () => {
             tournament.modeConfig = { mode: 'elimination', parameters: {} }
             tournament.strategyData = {}
           }
-          
+
           // Ensure strategyData exists
           if (!tournament.strategyData) {
             tournament.strategyData = {}
           }
-          
+
           return tournament
         })
-        
+
         tournaments.value = migratedTournaments
 
         if (data.activeTournamentId) {

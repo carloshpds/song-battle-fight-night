@@ -103,7 +103,7 @@ describe('DeathMatchTournamentStrategy', () => {
         createdAt: new Date(),
         completedAt: new Date()
       }
-      
+
       strategy.updateProgress(tournament, battle)
 
       // Second battle: track 2 beats track 3
@@ -144,10 +144,10 @@ describe('DeathMatchTournamentStrategy', () => {
       // Simulate someone reaching target score
       const data = strategy.getStrategyData(tournament)
       data.scores[mockTracks[0].id] = 10 // Target score
-      data.leaderboard = [{ 
-        trackId: mockTracks[0].id, 
-        score: 10, 
-        track: mockTracks[0] 
+      data.leaderboard = [{
+        trackId: mockTracks[0].id,
+        score: 10,
+        track: mockTracks[0]
       }]
       strategy.updateStrategyData(tournament, data)
 
@@ -165,10 +165,10 @@ describe('DeathMatchTournamentStrategy', () => {
   describe('when completing tournament', () => {
     test('then should set champion correctly', () => {
       const data = strategy.getStrategyData(tournament)
-      data.leaderboard = [{ 
-        trackId: mockTracks[0].id, 
-        score: 10, 
-        track: mockTracks[0] 
+      data.leaderboard = [{
+        trackId: mockTracks[0].id,
+        score: 10,
+        track: mockTracks[0]
       }]
       strategy.updateStrategyData(tournament, data)
 
