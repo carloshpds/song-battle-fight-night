@@ -17,6 +17,15 @@
           </v-card-title>
 
           <v-card-text>
+            <!-- Tournament Mode Selection -->
+            <div class="mb-6">
+              <TournamentModeSelector
+                v-model="selectedTournamentMode"
+                :track-count="estimatedTrackCount"
+                @update:config="onModeConfigUpdate"
+              />
+            </div>
+
             <v-tabs v-model="activeTab" color="primary">
               <v-tab value="playlist">
                 <v-icon class="mr-2">mdi-playlist-music</v-icon>
@@ -203,7 +212,9 @@ import { useRouter } from 'vue-router'
 import { useSpotifyStore } from '../stores/spotifyStore'
 import { useTournamentStore } from '@/features/tournament/stores/tournamentStore'
 import { TrackParsingService } from '../services/trackParsingService'
+import TournamentModeSelector from '@/features/tournament/components/TournamentModeSelector.vue'
 import type { SpotifyPlaylist, SpotifyTrack } from '../types/spotify.types'
+import type { TournamentMode } from '@/features/tournament/strategies/base/StrategyTypes'
 
 const router = useRouter()
 const spotifyStore = useSpotifyStore()
@@ -224,6 +235,10 @@ const parsedTracks = ref<SpotifyTrack[]>([])
 const urlParseError = ref<string | null>(null)
 const parsedPlaylistId = ref<string | null>(null)
 
+// Tournament mode selection
+const selectedTournamentMode = ref<TournamentMode>('elimination')
+const tournamentModeConfig = ref<Record<string, any>>({})
+
 // Computed
 const filteredPlaylists = computed(() => {
   if (!playlistSearch.value) return spotifyStore.userPlaylists
@@ -239,7 +254,20 @@ const paginatedPlaylists = computed(() => {
   return filteredPlaylists.value.slice(start, end)
 })
 
+const estimatedTrackCount = computed(() => {
+  if (activeTab.value === 'playlist' && selectedPlaylistId.value) {
+    const playlist = spotifyStore.userPlaylists.find(p => p.id === selectedPlaylistId.value)
+    return playlist?.tracks.total || 0
+  } else if (activeTab.value === 'url') {
+    return parsedTracks.value.length
+  }
+  return 10 // Default estimate for mode selection
+})
+
 // Methods
+const onModeConfigUpdate = (config: Record<string, any>) => {
+  tournamentModeConfig.value = config
+}
 const loadPlaylists = async () => {
   if (!spotifyStore.isAuthenticated) {
     router.push('/spotify/connect')
@@ -270,7 +298,12 @@ const selectPlaylist = async (playlist: SpotifyPlaylist) => {
     await tournamentStore.createTournament({
       playlistId: playlist.id,
       playlistName: playlist.name,
-      tracks: tracks
+      tracks: tracks,
+      mode: selectedTournamentMode.value,
+      modeConfig: {
+        mode: selectedTournamentMode.value,
+        parameters: tournamentModeConfig.value
+      }
     })
 
     // Navigate to tournaments list
@@ -349,7 +382,12 @@ const startTournamentWithTracks = async () => {
     await tournamentStore.createTournament({
       playlistId: parsedPlaylistId.value || 'custom-' + Date.now(),
       playlistName: `Custom Tournament (${parsedTracks.value.length} tracks)`,
-      tracks: parsedTracks.value
+      tracks: parsedTracks.value,
+      mode: selectedTournamentMode.value,
+      modeConfig: {
+        mode: selectedTournamentMode.value,
+        parameters: tournamentModeConfig.value
+      }
     })
 
     router.push('/tournament')

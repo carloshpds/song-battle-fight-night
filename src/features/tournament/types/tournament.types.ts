@@ -1,5 +1,6 @@
 import type { SpotifyTrack, SpotifyPlaylist } from '@/features/spotify-integration/types/spotify.types'
 import type { Battle } from '@/features/battle/types/battle.types'
+import type { TournamentMode, TournamentModeConfig } from '../strategies/base/StrategyTypes'
 
 export type TournamentStatus = 'active' | 'completed' | 'paused'
 
@@ -20,6 +21,8 @@ export interface Tournament {
   playlistId: string
   playlistData?: SpotifyPlaylist
   status: TournamentStatus
+  mode: TournamentMode // NOVO
+  modeConfig: TournamentModeConfig // NOVO
   tracks: SpotifyTrack[]
   battles: Battle[]
   champion?: SpotifyTrack
@@ -27,6 +30,7 @@ export interface Tournament {
   completedAt?: Date
   lastBattleAt?: Date
   progress: TournamentProgress
+  strategyData: Record<string, any> // NOVO - dados específicos da estratégia
 }
 
 export interface TournamentSettings {
@@ -49,5 +53,7 @@ export interface TournamentCreateRequest {
   playlistId: string
   playlistName: string
   tracks: SpotifyTrack[]
+  mode?: TournamentMode // NOVO - padrão 'elimination'
+  modeConfig?: Partial<TournamentModeConfig> // NOVO
   settings?: Partial<TournamentSettings>
 }

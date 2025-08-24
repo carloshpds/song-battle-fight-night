@@ -51,14 +51,27 @@ export class BattleTournamentService {
    * Get two tracks for battle from tournament remaining tracks
    */
   getTournamentBattlePair(): [SpotifyTrack, SpotifyTrack] | null {
-    const tracks = this.getTracksForBattle()
-    if (!tracks || tracks.length < 2) {
+    if (!this.tournamentStoreGetter) {
       return null
     }
 
-    // Get two random tracks from remaining tracks
-    const shuffled = [...tracks].sort(() => Math.random() - 0.5)
-    return [shuffled[0], shuffled[1]]
+    try {
+      const tournamentStore = this.tournamentStoreGetter()
+      
+      if (tournamentStore.activeTournament.value &&
+          tournamentStore.activeTournament.value.status === 'active') {
+        
+        const matchup = tournamentStore.getNextMatchup(tournamentStore.activeTournament.value)
+        
+        if (matchup) {
+          return [matchup.trackA, matchup.trackB]
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to get tournament battle pair:', error)
+    }
+
+    return null
   }
 
   /**

@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useSpotifyStore } from '@/features/spotify-integration/stores/spotifyStore'
-import { TournamentService } from '../services/tournamentService'
 import { battleTournamentService } from '@/features/battle/services/battleTournamentService'
+import { TournamentStrategyFactory } from '../strategies/TournamentStrategyFactory'
 import type {
   Tournament,
-  TournamentProgress,
   TournamentCreateRequest
 } from '../types/tournament.types'
-import type { SpotifyTrack } from '@/features/spotify-integration/types/spotify.types'
+import type { TournamentMode } from '../strategies/base/StrategyTypes'
+import type { BattleMatchup } from '../strategies/base/TournamentStrategy.interface'
 import type { Battle } from '@/features/battle/types/battle.types'
 
 export const useTournamentStore = defineStore('tournament', () => {
@@ -51,8 +51,11 @@ export const useTournamentStore = defineStore('tournament', () => {
       throw new Error('Cannot create tournament at this time')
     }
 
-    if (request.tracks.length < 2) {
-      throw new Error('Tournament must have at least 2 tracks')
+    const mode = request.mode || 'elimination'
+    const strategy = TournamentStrategyFactory.getStrategy(mode)
+
+    if (!strategy.validateTracks(request.tracks)) {
+      throw new Error(`Insufficient tracks for ${strategy.name} mode. Minimum required: ${strategy.config.requireMinimumTracks}`)
     }
 
     isLoading.value = true
@@ -64,10 +67,16 @@ export const useTournamentStore = defineStore('tournament', () => {
         name: request.playlistName,
         playlistId: request.playlistId,
         status: 'active',
+        mode,
+        modeConfig: {
+          mode,
+          parameters: request.modeConfig?.parameters || {}
+        },
         tracks: [...request.tracks],
         battles: [],
         createdAt: new Date(),
-        progress: calculateInitialProgress(request.tracks)
+        progress: strategy.initializeTournament(request.tracks),
+        strategyData: {}
       }
 
       tournaments.value.push(tournament)
@@ -111,9 +120,11 @@ export const useTournamentStore = defineStore('tournament', () => {
     }
 
     const tournament = activeTournament.value
+    const strategy = TournamentStrategyFactory.getStrategy(tournament.mode)
 
     console.log('🏆 Tournament battle completed:', {
       winner: battle.winner,
+      mode: tournament.mode,
       remainingTracks: tournament.progress.remainingTracks.length,
       eliminatedTracks: tournament.progress.eliminatedTracks.length
     })
@@ -122,8 +133,8 @@ export const useTournamentStore = defineStore('tournament', () => {
     tournament.battles.push(battle)
     tournament.lastBattleAt = new Date()
 
-    // Update tournament progress
-    updateTournamentProgress(tournament, battle)
+    // Update tournament progress using strategy
+    tournament.progress = strategy.updateProgress(tournament, battle)
 
     console.log('🏆 Tournament updated:', {
       remainingTracks: tournament.progress.remainingTracks.length,
@@ -131,9 +142,9 @@ export const useTournamentStore = defineStore('tournament', () => {
       currentRound: tournament.progress.currentRound
     })
 
-    // Check if tournament is completed
-    if (TournamentService.shouldCompleteTournament(tournament)) {
-      completeTournament(tournament)
+    // Check if tournament is completed using strategy
+    if (strategy.isCompleted(tournament)) {
+      activeTournament.value = strategy.completeTournament(tournament)
     }
 
     await saveToStorage()
@@ -170,8 +181,9 @@ export const useTournamentStore = defineStore('tournament', () => {
     }
   }
 
-  const getNextMatchup = (tournament: Tournament): { trackA: SpotifyTrack; trackB: SpotifyTrack } | null => {
-    return TournamentService.getNextMatchup(tournament)
+  const getNextMatchup = (tournament: Tournament): BattleMatchup | null => {
+    const strategy = TournamentStrategyFactory.getStrategy(tournament.mode)
+    return strategy.getNextMatchup(tournament)
   }
 
   const resetTournamentData = async (): Promise<void> => {
@@ -186,16 +198,16 @@ export const useTournamentStore = defineStore('tournament', () => {
     return Date.now().toString(36) + Math.random().toString(36).substr(2)
   }
 
-  const calculateInitialProgress = (tracks: SpotifyTrack[]): TournamentProgress => {
-    return TournamentService.calculateInitialProgress(tracks)
+  // New strategy-related methods
+  const getAvailableModes = (): Array<{ mode: TournamentMode; name: string; description: string }> => {
+    return TournamentStrategyFactory.getAvailableModes().map(mode => ({
+      mode,
+      ...TournamentStrategyFactory.getModeInfo(mode)!
+    }))
   }
 
-  const updateTournamentProgress = (tournament: Tournament, completedBattle: Battle): void => {
-    TournamentService.updateTournamentProgress(tournament, completedBattle)
-  }
-
-  const completeTournament = (tournament: Tournament): void => {
-    TournamentService.completeTournament(tournament)
+  const getTournamentStrategy = (tournament: Tournament) => {
+    return TournamentStrategyFactory.getStrategy(tournament.mode)
   }
 
   const saveToStorage = async (): Promise<void> => {
@@ -222,7 +234,24 @@ export const useTournamentStore = defineStore('tournament', () => {
       const isRecent = data.timestamp && (Date.now() - data.timestamp) < 30 * 24 * 60 * 60 * 1000
 
       if (isRecent) {
-        tournaments.value = data.tournaments || []
+        // Migrate old tournaments to new format
+        const migratedTournaments = (data.tournaments || []).map((tournament: any) => {
+          // If tournament doesn't have mode, assume it's elimination (legacy)
+          if (!tournament.mode) {
+            tournament.mode = 'elimination'
+            tournament.modeConfig = { mode: 'elimination', parameters: {} }
+            tournament.strategyData = {}
+          }
+          
+          // Ensure strategyData exists
+          if (!tournament.strategyData) {
+            tournament.strategyData = {}
+          }
+          
+          return tournament
+        })
+        
+        tournaments.value = migratedTournaments
 
         if (data.activeTournamentId) {
           activeTournament.value = tournaments.value.find(t => t.id === data.activeTournamentId) || null
@@ -265,6 +294,10 @@ export const useTournamentStore = defineStore('tournament', () => {
     getNextMatchup,
     resetTournamentData,
     clearError,
-    getTournamentById
+    getTournamentById,
+
+    // Strategy-related methods
+    getAvailableModes,
+    getTournamentStrategy
   }
 })
