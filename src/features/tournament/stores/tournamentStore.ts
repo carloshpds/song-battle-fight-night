@@ -79,6 +79,10 @@ export const useTournamentStore = defineStore('tournament', () => {
         strategyData: {}
       }
 
+      // ✅ FIX: Initialize strategy-specific data after tournament creation
+      // This ensures the strategy has access to the tournament object to initialize its data
+      strategy.getStrategyData(tournament)
+
       tournaments.value.push(tournament)
       activeTournament.value = tournament
 
@@ -246,6 +250,17 @@ export const useTournamentStore = defineStore('tournament', () => {
           // Ensure strategyData exists
           if (!tournament.strategyData) {
             tournament.strategyData = {}
+          }
+
+          // ✅ FIX: Initialize strategy data for migrated tournaments if needed
+          // This ensures that old tournaments have their strategy data properly initialized
+          if (tournament.status === 'active' && Object.keys(tournament.strategyData).length === 0) {
+            try {
+              const strategy = TournamentStrategyFactory.getStrategy(tournament.mode)
+              strategy.getStrategyData(tournament)
+            } catch (error) {
+              console.warn(`Failed to initialize strategy data for tournament ${tournament.id}:`, error)
+            }
           }
 
           return tournament
