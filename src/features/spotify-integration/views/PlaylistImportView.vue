@@ -222,6 +222,7 @@ const urlsInput = ref('')
 const isParsingUrls = ref(false)
 const parsedTracks = ref<SpotifyTrack[]>([])
 const urlParseError = ref<string | null>(null)
+const parsedPlaylistId = ref<string | null>(null)
 
 // Computed
 const filteredPlaylists = computed(() => {
@@ -294,6 +295,7 @@ const parseUrls = async () => {
 
     for (const url of urls) {
       if (TrackParsingService.isValidSpotifyUrl(url)) {
+        parsedPlaylistId.value = TrackParsingService.extractPlaylistId(url)
         const parsed = TrackParsingService.parseSpotifyUrl(url)
 
         if (parsed.type === 'track') {
@@ -345,7 +347,7 @@ const startTournamentWithTracks = async () => {
   try {
     // Create tournament with parsed tracks
     await tournamentStore.createTournament({
-      playlistId: 'custom-' + Date.now(),
+      playlistId: parsedPlaylistId.value || 'custom-' + Date.now(),
       playlistName: `Custom Tournament (${parsedTracks.value.length} tracks)`,
       tracks: parsedTracks.value
     })
