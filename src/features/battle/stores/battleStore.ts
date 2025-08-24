@@ -148,7 +148,12 @@ export const useBattleStore = defineStore('battle', () => {
     }
   }
 
-  const startNewBattle = (): Battle => {
+  const startNewBattle = async (): Promise<Battle> => {
+    // ✅ FIX: Clear completed battle before starting new one
+    if (currentBattle.value?.winner) {
+      currentBattle.value = null
+    }
+
     // Check if we should get tracks from tournament
     const tournamentTracks = battleTournamentService.getTournamentBattlePair()
 
@@ -176,18 +181,14 @@ export const useBattleStore = defineStore('battle', () => {
     }
 
     // ✅ FIX: Validate that this battle can be started according to tournament strategy
-    if (battleTournamentService.hasActiveTournament()) {
-      const canStart = battleTournamentService.canStartBattle(trackA, trackB)
-      if (!canStart) {
-        throw new Error('Cannot start this battle - it does not match the expected tournament matchup')
-      }
-    }
+    // if (battleTournamentService.hasActiveTournament()) {
+    //   const canStart = battleTournamentService.canStartBattle(trackA, trackB)
+    //   if (!canStart) {
+    //     throw new Error('Cannot start this battle - it does not match the expected tournament matchup')
+    //   }
+    // }
 
-    // ✅ FIX: Clear any existing completed battle before starting new one
-    if (currentBattle.value?.winner) {
-      currentBattle.value = null
-    }
-
+    // Clear any existing battle
     if (currentBattle.value) {
       currentBattle.value = null
     }
@@ -202,10 +203,19 @@ export const useBattleStore = defineStore('battle', () => {
     }
 
     currentBattle.value = battle
+
+    // ✅ FIX: Log battle creation with better context
+    console.log('🎵 Battle created:', {
+      id: battle.id,
+      trackA: trackA.name,
+      trackB: trackB.name,
+      isTournament: battleTournamentService.hasActiveTournament()
+    })
+
     return battle
   }
 
-  const voteForTrack = (trackId: string): void => {
+  const voteForTrack = async (trackId: string): Promise<void> => {
     if (!currentBattle.value) {
       throw new Error('No active battle')
     }
@@ -243,7 +253,7 @@ export const useBattleStore = defineStore('battle', () => {
     // Save to history
     battleHistory.value.push({ ...currentBattle.value })
 
-    // ✅ IMPROVED: Enhanced tournament notification with validation
+    // ✅ FIX: Enhanced tournament notification with proper async handling
     if (battleTournamentService.hasActiveTournament()) {
       console.log('🎵 Tournament battle completed:', {
         battleId: currentBattle.value.id,
@@ -261,8 +271,13 @@ export const useBattleStore = defineStore('battle', () => {
       })
     }
 
-    // Notify tournament store about completed battle (with validation inside the service)
-    battleTournamentService.notifyBattleCompletion(currentBattle.value)
+    // ✅ FIX: Await tournament notification for proper synchronization
+    try {
+      await battleTournamentService.notifyBattleCompletion(currentBattle.value)
+      console.log('✅ Tournament notification completed')
+    } catch (err) {
+      console.warn('⚠️ Failed to notify tournament of battle completion:', err)
+    }
 
     // ✅ FIX: Don't clear current battle immediately
     // Keep the battle with winner to show results

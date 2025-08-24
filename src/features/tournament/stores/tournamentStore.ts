@@ -18,13 +18,6 @@ export const useTournamentStore = defineStore('tournament', () => {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  // Register this store with the battle service to avoid circular imports
-  const storeInstance = {
-    activeTournament,
-    onBattleCompleted: (battle: Battle) => onBattleCompleted(battle)
-  }
-  battleTournamentService.registerTournamentStore(() => storeInstance)
-
   // Computed
   const activeTournaments = computed(() =>
     tournaments.value.filter(t => t.status === 'active')
@@ -285,7 +278,7 @@ export const useTournamentStore = defineStore('tournament', () => {
     error.value = null
   }
 
-  return {
+  const storeReturn = {
     // State
     tournaments: computed(() => tournaments.value),
     activeTournament: computed(() => activeTournament.value),
@@ -315,4 +308,9 @@ export const useTournamentStore = defineStore('tournament', () => {
     getAvailableModes,
     getTournamentStrategy
   }
+
+  // Register this store with the battle service to avoid circular imports
+  battleTournamentService.registerTournamentStore(() => storeReturn)
+
+  return storeReturn
 })

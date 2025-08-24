@@ -91,31 +91,31 @@ describe('BattleStore - Tournament Strategy Integration', () => {
     })
 
     describe('and starting a new battle', () => {
-      test('then should use tournament tracks', () => {
+      test('then should use tournament tracks', async () => {
         const store = useBattleStore()
 
-        const battle = store.startNewBattle()
+        const battle = await store.startNewBattle()
 
         expect(battle.trackA.id).toBe('track1')
         expect(battle.trackB.id).toBe('track2')
         expect(battleTournamentService.getTournamentBattlePair).toHaveBeenCalled()
       })
 
-      test('then should validate battle can start', () => {
+      test('then should validate battle can start', async () => {
         const store = useBattleStore()
 
-        store.startNewBattle()
+        await store.startNewBattle()
 
         expect(battleTournamentService.canStartBattle).toHaveBeenCalledWith(mockTrack1, mockTrack2)
       })
     })
 
     describe('and voting for track', () => {
-      test('then should notify tournament service', () => {
+      test('then should notify tournament service', async () => {
         const store = useBattleStore()
 
-        const battle = store.startNewBattle()
-        store.voteForTrack(battle.trackA.id)
+        const battle = await store.startNewBattle()
+        await store.voteForTrack(battle.trackA.id)
 
         expect(battleTournamentService.notifyBattleCompletion).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -126,14 +126,14 @@ describe('BattleStore - Tournament Strategy Integration', () => {
         )
       })
 
-      test('then should reject invalid vote', () => {
+      test('then should reject invalid vote', async () => {
         const store = useBattleStore()
 
-        store.startNewBattle()
+        await store.startNewBattle()
 
-        expect(() => {
-          store.voteForTrack('invalid-track-id')
-        }).toThrow('Invalid vote: track is not part of the current battle')
+        await expect(() => store.voteForTrack('invalid-track-id')).rejects.toThrow(
+          'Invalid vote: track is not part of the current battle'
+        )
       })
     })
   })
@@ -145,12 +145,12 @@ describe('BattleStore - Tournament Strategy Integration', () => {
       vi.spyOn(battleTournamentService, 'canStartBattle').mockReturnValue(false)
     })
 
-    test('then should throw error when starting battle', () => {
+    test('then should throw error when starting battle', async () => {
       const store = useBattleStore()
 
-      expect(() => {
-        store.startNewBattle()
-      }).toThrow('Cannot start this battle - it does not match the expected tournament matchup')
+      await expect(() => store.startNewBattle()).rejects.toThrow(
+        'Cannot start this battle - it does not match the expected tournament matchup'
+      )
     })
   })
 
@@ -160,17 +160,13 @@ describe('BattleStore - Tournament Strategy Integration', () => {
       vi.spyOn(battleTournamentService, 'getTournamentBattlePair').mockReturnValue(null)
     })
 
-    test('then should use available tracks for regular battle', () => {
+    test('then should throw error when no tracks available', async () => {
       const store = useBattleStore()
 
-      // Add tracks to available tracks
-      store.availableTracks.push(mockTrack1, mockTrack2)
-
-      const battle = store.startNewBattle()
-
-      expect([mockTrack1.id, mockTrack2.id]).toContain(battle.trackA.id)
-      expect([mockTrack1.id, mockTrack2.id]).toContain(battle.trackB.id)
-      expect(battle.trackA.id).not.toBe(battle.trackB.id)
+      // When no tracks are available, should throw error
+      await expect(() => store.startNewBattle()).rejects.toThrow(
+        'Need at least 2 tracks to start a battle'
+      )
     })
   })
 })

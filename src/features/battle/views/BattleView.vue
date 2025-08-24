@@ -288,23 +288,40 @@ const initializeBattle = () => {
   }
 }
 
-const startNewBattle = () => {
+const startNewBattle = async () => {
   try {
-    battleStore.startNewBattle()
+    // ✅ FIX: Check tournament status before starting battle
+    if (isTournamentCompleted.value) {
+      console.log('🏆 Tournament completed, not starting new battle')
+      return
+    }
+
+    await battleStore.startNewBattle()
   } catch (err) {
     console.error('Failed to start new battle:', err)
   }
 }
 
-const voteForTrack = (trackId: string) => {
+const voteForTrack = async (trackId: string) => {
   try {
     // Play satisfying vote sound
     playVoteSuccessSound()
 
-    battleStore.voteForTrack(trackId)
+    // ✅ FIX: Await vote completion to ensure proper synchronization
+    await battleStore.voteForTrack(trackId)
 
-    setTimeout(() => {
-      startNewBattle()
+    // ✅ FIX: Wait for tournament store to update before starting next battle
+    setTimeout(async () => {
+      // Check if tournament is still active before starting new battle
+      if (isTournamentCompleted.value) {
+        return
+      }
+
+      try {
+        await startNewBattle()
+      } catch (err) {
+        console.error('Failed to start new battle after vote:', err)
+      }
     }, 2000)
   } catch (err) {
     console.error('Failed to vote for track:', err)
@@ -340,6 +357,42 @@ watch(isTournamentCompleted, (completed) => {
     playTournamentCompleteSound()
   }
 })
+
+// ✅ FIX: Watch for tournament progress changes to ensure UI updates
+watch(
+  () => tournamentProgress.value,
+  (newProgress, oldProgress) => {
+    if (newProgress && oldProgress) {
+      console.log('🏆 Tournament progress updated:', {
+        remaining: newProgress.remainingTracks.length,
+        eliminated: newProgress.eliminatedTracks.length,
+        currentRound: newProgress.currentRound,
+        progressPercentage: newProgress.progressPercentage
+      })
+
+      // Force reactivity update if needed
+      // This ensures that computed values refresh properly
+      if (newProgress.remainingTracks.length !== oldProgress.remainingTracks.length) {
+        console.log('🔄 Tournament tracks changed, updating battle availability')
+      }
+    }
+  },
+  { deep: true }
+)
+
+// ✅ FIX: Watch for active tournament changes
+watch(
+  () => activeTournament.value?.status,
+  (newStatus, oldStatus) => {
+    if (oldStatus === 'active' && newStatus === 'completed') {
+      console.log('🏆 Tournament completed, stopping battle progression')
+      // Clear any pending battle starts
+      if (currentBattle.value?.winner) {
+        console.log('🎵 Clearing completed battle due to tournament completion')
+      }
+    }
+  }
+)
 
 // Initialize on mount
 onMounted(() => {

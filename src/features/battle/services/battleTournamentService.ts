@@ -93,13 +93,28 @@ export class BattleTournamentService {
 
         if (expectedMatchup && this.isBattleMatchingExpectedMatchup(battle, expectedMatchup)) {
           console.log('🏆 Valid tournament battle completed, notifying tournament store')
+
+          // ✅ FIX: Await tournament update to ensure synchronization
           await tournamentStore.onBattleCompleted(battle)
+
+          console.log('✅ Tournament store notified and updated successfully')
         } else {
-          console.warn('⚠️ Battle does not match expected tournament matchup, skipping tournament notification')
+          console.warn('⚠️ Battle does not match expected tournament matchup, skipping tournament notification', {
+            battle: {
+              trackA: battle.trackA.name,
+              trackB: battle.trackB.name,
+              winner: battle.winner
+            },
+            expected: expectedMatchup ? {
+              trackA: expectedMatchup.trackA.name,
+              trackB: expectedMatchup.trackB.name
+            } : 'No expected matchup'
+          })
         }
       }
     } catch (error) {
-      console.warn('Failed to notify tournament of battle completion:', error)
+      console.error('❌ Failed to notify tournament of battle completion:', error)
+      throw error // ✅ FIX: Re-throw error to allow battle store to handle it
     }
   }
 
