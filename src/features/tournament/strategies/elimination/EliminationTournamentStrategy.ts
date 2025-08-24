@@ -45,27 +45,50 @@ export class EliminationTournamentStrategy implements TournamentStrategy {
       ? completedBattle.trackB.id
       : completedBattle.trackA.id
 
-    // Move loser to eliminated
+    // ✅ FIX: More rigorous elimination logic
     const loserTrack = progress.remainingTracks.find(t => t.id === loserId)
     if (loserTrack) {
+      // Add to eliminated tracks
       progress.eliminatedTracks.push(loserTrack)
+
+      // Remove from remaining tracks (ensure it's completely removed)
       progress.remainingTracks = progress.remainingTracks.filter(t => t.id !== loserId)
+
+      console.log(`🏆 Track "${loserTrack.name}" eliminated. Remaining: ${progress.remainingTracks.length}`)
+    }
+
+    // ✅ FIX: Verify winner is still in remaining tracks (safety check)
+    const winnerExists = progress.remainingTracks.find(t => t.id === winnerId)
+    if (!winnerExists) {
+      const winnerTrack = completedBattle.trackA.id === winnerId
+        ? completedBattle.trackA
+        : completedBattle.trackB
+      console.warn(`⚠️ Winner track "${winnerTrack.name}" not found in remaining tracks. This shouldn't happen!`)
     }
 
     // Update battle counts
     progress.battlesCompleted++
-    progress.battlesRemaining = Math.max(0, progress.totalTracks - 1 - progress.battlesCompleted)
+    progress.battlesRemaining = Math.max(0, progress.remainingTracks.length - 1)
     progress.progressPercentage = progress.totalTracks > 1
       ? (progress.battlesCompleted / (progress.totalTracks - 1)) * 100
       : 100
 
-    // Update current round
-    if (progress.remainingTracks.length > 1) {
-      const tracksInCurrentRound = Math.pow(2, Math.floor(Math.log2(progress.remainingTracks.length)))
-      const expectedRound = progress.totalRounds - Math.floor(Math.log2(tracksInCurrentRound)) + 1
-      progress.currentRound = Math.max(1, Math.min(expectedRound, progress.totalRounds))
+    // ✅ FIX: Better round calculation
+    const remainingCount = progress.remainingTracks.length
+    if (remainingCount > 1) {
+      // Calculate current round based on how many tracks are left
+      const roundsFromEnd = Math.ceil(Math.log2(remainingCount))
+      progress.currentRound = Math.max(1, progress.totalRounds - roundsFromEnd + 1)
     } else {
       progress.currentRound = progress.totalRounds
+    }
+
+    // ✅ FIX: Clear current matchups when round changes or no more matchups
+    const strategyData = this.getStrategyData(tournament)
+    if (strategyData.currentMatchups && strategyData.currentMatchups.length === 0) {
+      // All matchups in current round completed, prepare for next round
+      strategyData.currentMatchups = []
+      this.updateStrategyData(tournament, strategyData)
     }
 
     return progress
@@ -78,13 +101,43 @@ export class EliminationTournamentStrategy implements TournamentStrategy {
       return null
     }
 
-    // Simple random selection (could be improved with bracket logic)
-    const shuffled = [...remaining].sort(() => 0.5 - Math.random())
+    // ✅ FIX: Get or initialize strategy data for bracket tracking
+    let strategyData = this.getStrategyData(tournament)
+
+    if (!strategyData.currentMatchups || strategyData.currentMatchups.length === 0) {
+      // Initialize new round matchups
+      strategyData = this.initializeRoundMatchups(tournament, remaining)
+      this.updateStrategyData(tournament, strategyData)
+    }
+
+    // Get the next matchup from current round
+    const nextMatchup = strategyData.currentMatchups.shift()
+
+    if (!nextMatchup) {
+      return null
+    }
+
+    // Find the actual track objects
+    const trackA = remaining.find(t => t.id === nextMatchup.trackAId)
+    const trackB = remaining.find(t => t.id === nextMatchup.trackBId)
+
+    if (!trackA || !trackB) {
+      // Tracks not found in remaining, try next matchup
+      return this.getNextMatchup(tournament)
+    }
+
+    // Update strategy data
+    this.updateStrategyData(tournament, strategyData)
 
     return {
-      trackA: shuffled[0],
-      trackB: shuffled[1],
-      round: tournament.progress.currentRound
+      trackA,
+      trackB,
+      round: tournament.progress.currentRound,
+      metadata: {
+        battleType: 'elimination',
+        roundNumber: tournament.progress.currentRound,
+        totalRounds: tournament.progress.totalRounds
+      }
     }
   }
 
@@ -117,10 +170,54 @@ export class EliminationTournamentStrategy implements TournamentStrategy {
   }
 
   getStrategyData(tournament: Tournament): Record<string, any> {
-    return tournament.strategyData || {}
+    if (!tournament.strategyData.elimination) {
+      tournament.strategyData.elimination = {
+        currentMatchups: [],
+        roundHistory: []
+      }
+    }
+    return tournament.strategyData.elimination
   }
 
   updateStrategyData(tournament: Tournament, data: Record<string, any>): void {
-    tournament.strategyData = { ...tournament.strategyData, ...data }
+    tournament.strategyData.elimination = data
+  }
+
+  /**
+   * Initialize matchups for the current round
+   */
+  private initializeRoundMatchups(tournament: Tournament, remainingTracks: SpotifyTrack[]): Record<string, any> {
+    const strategyData = this.getStrategyData(tournament)
+
+    // Create matchups by pairing tracks sequentially (bracket style)
+    const matchups = []
+    const tracks = [...remainingTracks]
+
+    // If odd number of tracks, one gets a bye (advances automatically)
+    if (tracks.length % 2 === 1) {
+      const byeTrack = tracks.pop() // Last track gets bye
+      console.log(`🏆 Track "${byeTrack?.name}" advances with bye`)
+    }
+
+    // Pair remaining tracks
+    for (let i = 0; i < tracks.length; i += 2) {
+      if (i + 1 < tracks.length) {
+        matchups.push({
+          trackAId: tracks[i].id,
+          trackBId: tracks[i + 1].id,
+          completed: false
+        })
+      }
+    }
+
+    // Shuffle matchups for variety, but keep bracket integrity
+    const shuffledMatchups = matchups.sort(() => 0.5 - Math.random())
+
+    strategyData.currentMatchups = shuffledMatchups
+    strategyData.roundHistory = strategyData.roundHistory || []
+
+    console.log(`🏆 Elimination Round ${tournament.progress.currentRound}: ${matchups.length} matchups created`)
+
+    return strategyData
   }
 }

@@ -87,11 +87,32 @@ export class BattleTournamentService {
 
       if (tournamentStore.activeTournament &&
           tournamentStore.activeTournament.value.status === 'active') {
-        await tournamentStore.onBattleCompleted(battle)
+
+        // ✅ FIX: Validate that this battle corresponds to the expected tournament matchup
+        const expectedMatchup = tournamentStore.getNextMatchup(tournamentStore.activeTournament.value)
+
+        if (expectedMatchup && this.isBattleMatchingExpectedMatchup(battle, expectedMatchup)) {
+          console.log('🏆 Valid tournament battle completed, notifying tournament store')
+          await tournamentStore.onBattleCompleted(battle)
+        } else {
+          console.warn('⚠️ Battle does not match expected tournament matchup, skipping tournament notification')
+        }
       }
     } catch (error) {
       console.warn('Failed to notify tournament of battle completion:', error)
     }
+  }
+
+  /**
+   * Validate if a completed battle matches the expected tournament matchup
+   */
+  private isBattleMatchingExpectedMatchup(battle: Battle, expectedMatchup: any): boolean {
+    const battleTrackIds = new Set([battle.trackA.id, battle.trackB.id])
+    const matchupTrackIds = new Set([expectedMatchup.trackA.id, expectedMatchup.trackB.id])
+
+    // Check if both sets contain the same track IDs
+    return battleTrackIds.size === matchupTrackIds.size &&
+           Array.from(battleTrackIds).every(id => matchupTrackIds.has(id))
   }
 
   /**
@@ -108,6 +129,42 @@ export class BattleTournamentService {
                 tournamentStore.activeTournament.value.status === 'active')
     } catch {
       return false
+    }
+  }
+
+  /**
+   * Check if a battle can be started (validates against tournament strategy if active)
+   */
+  canStartBattle(trackA: SpotifyTrack, trackB: SpotifyTrack): boolean {
+    if (!this.tournamentStoreGetter) {
+      return true // No tournament constraints
+    }
+
+    try {
+      const tournamentStore = this.tournamentStoreGetter()
+
+      if (tournamentStore.activeTournament.value &&
+          tournamentStore.activeTournament.value.status === 'active') {
+
+        const expectedMatchup = tournamentStore.getNextMatchup(tournamentStore.activeTournament.value)
+
+        if (expectedMatchup) {
+          // Check if the proposed battle matches the expected tournament matchup
+          const proposedTrackIds = new Set([trackA.id, trackB.id])
+          const expectedTrackIds = new Set([expectedMatchup.trackA.id, expectedMatchup.trackB.id])
+
+          return proposedTrackIds.size === expectedTrackIds.size &&
+                 Array.from(proposedTrackIds).every(id => expectedTrackIds.has(id))
+        } else {
+          // No more matchups available in tournament
+          return false
+        }
+      }
+
+      return true // No active tournament, battle can proceed
+    } catch (error) {
+      console.warn('Failed to check if battle can start:', error)
+      return true // Default to allowing battle
     }
   }
 }

@@ -39,6 +39,14 @@ interface GroupsData {
   qualifiersPerGroup: number
   playoffPhase: boolean
   playoffTracks: SpotifyTrack[]
+  // ✅ FIX: Add playoff bracket management properties
+  playoffMatchups?: Array<{
+    trackAId: string
+    trackBId: string
+    completed: boolean
+    winnerId?: string
+  }>
+  currentPlayoffMatchupIndex?: number
 }
 
 export class GroupsTournamentStrategy implements TournamentStrategy {
@@ -248,10 +256,31 @@ export class GroupsTournamentStrategy implements TournamentStrategy {
     const loserTrack = data.playoffTracks.find(t => t.id === loserId)
 
     if (loserTrack) {
-      // Remove loser from playoff tracks
+      // ✅ FIX: More rigorous elimination in playoffs
       data.playoffTracks = data.playoffTracks.filter(t => t.id !== loserId)
       progress.eliminatedTracks.push(loserTrack)
       progress.remainingTracks = data.playoffTracks
+
+      console.log(`🏆 Groups Playoff: Track "${loserTrack.name}" eliminated. Remaining: ${data.playoffTracks.length}`)
+    }
+
+    // ✅ FIX: Mark current matchup as completed and advance to next
+    if (data.playoffMatchups && data.currentPlayoffMatchupIndex !== undefined) {
+      const currentMatchup = data.playoffMatchups[data.currentPlayoffMatchupIndex]
+      if (currentMatchup) {
+        currentMatchup.completed = true
+        currentMatchup.winnerId = battle.winner || undefined
+      }
+      data.currentPlayoffMatchupIndex++
+
+      // If all current round matchups are completed, prepare for next round
+      const remainingMatchups = data.playoffMatchups.filter(m => !m.completed)
+      if (remainingMatchups.length === 0 && data.playoffTracks.length > 1) {
+        // Generate new round of matchups
+        data.playoffMatchups = this.generatePlayoffMatchups(data.playoffTracks)
+        data.currentPlayoffMatchupIndex = 0
+        console.log(`🏆 Groups Playoff: New round started with ${data.playoffMatchups.length} matchups`)
+      }
     }
 
     progress.battlesRemaining = Math.max(0, data.playoffTracks.length - 1)
@@ -330,16 +359,72 @@ export class GroupsTournamentStrategy implements TournamentStrategy {
   private getPlayoffMatchup(data: GroupsData): BattleMatchup | null {
     if (data.playoffTracks.length < 2) return null
 
-    // Simple elimination: take first two tracks
+    // ✅ FIX: Implement proper bracket-style matchups for playoffs
+    if (!data.playoffMatchups || data.playoffMatchups.length === 0) {
+      // Initialize playoff matchups if not already done
+      data.playoffMatchups = this.generatePlayoffMatchups(data.playoffTracks)
+      data.currentPlayoffMatchupIndex = 0
+    }
+
+    // Ensure index exists
+    if (data.currentPlayoffMatchupIndex === undefined) {
+      data.currentPlayoffMatchupIndex = 0
+    }
+
+    // Get next matchup from playoff bracket
+    if (data.currentPlayoffMatchupIndex >= data.playoffMatchups.length) {
+      return null // All matchups completed
+    }
+
+    const matchup = data.playoffMatchups[data.currentPlayoffMatchupIndex]
+    const trackA = data.playoffTracks.find(t => t.id === matchup.trackAId)
+    const trackB = data.playoffTracks.find(t => t.id === matchup.trackBId)
+
+    if (!trackA || !trackB) {
+      // Tracks not found (might have been eliminated), move to next matchup
+      data.currentPlayoffMatchupIndex++
+      return this.getPlayoffMatchup(data)
+    }
+
     return {
-      trackA: data.playoffTracks[0],
-      trackB: data.playoffTracks[1],
+      trackA,
+      trackB,
       round: 2,
       metadata: {
         battleType: 'playoff',
-        remainingTracks: data.playoffTracks.length
+        remainingTracks: data.playoffTracks.length,
+        matchupIndex: data.currentPlayoffMatchupIndex,
+        totalMatchups: data.playoffMatchups.length
       }
     }
+  }
+
+  /**
+   * Generate bracket-style matchups for playoff phase
+   */
+  private generatePlayoffMatchups(tracks: SpotifyTrack[]): Array<{trackAId: string, trackBId: string, completed: boolean}> {
+    const matchups = []
+    const availableTracks = [...tracks]
+
+    // Handle bye if odd number of tracks
+    if (availableTracks.length % 2 === 1) {
+      const byeTrack = availableTracks.pop()
+      console.log(`🏆 Groups Playoff: Track "${byeTrack?.name}" advances with bye`)
+    }
+
+    // Create pairs for bracket
+    for (let i = 0; i < availableTracks.length; i += 2) {
+      if (i + 1 < availableTracks.length) {
+        matchups.push({
+          trackAId: availableTracks[i].id,
+          trackBId: availableTracks[i + 1].id,
+          completed: false
+        })
+      }
+    }
+
+    console.log(`🏆 Groups Playoff: ${matchups.length} matchups generated`)
+    return matchups
   }
 
   private calculateRemainingBattles(data: GroupsData): number {

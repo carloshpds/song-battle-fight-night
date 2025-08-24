@@ -35,7 +35,19 @@ export const useBattleStore = defineStore('battle', () => {
   const battleCount = computed(() => battleHistory.value.length)
 
   const canStartBattle = computed(() => {
-    return availableTracks.value.length >= 2 && !currentBattle.value
+    // Check if there are already current battles
+    if (currentBattle.value) {
+      return false
+    }
+
+    // If there's an active tournament, check if there are available matchups
+    if (battleTournamentService.hasActiveTournament()) {
+      const tournamentTracks = battleTournamentService.getTournamentBattlePair()
+      return !!tournamentTracks
+    }
+
+    // For regular battles, need at least 2 available tracks
+    return availableTracks.value.length >= 2
   })
 
   // Actions
@@ -163,6 +175,14 @@ export const useBattleStore = defineStore('battle', () => {
       console.log('🎵 Starting regular battle:', { trackA: trackA.name, trackB: trackB.name })
     }
 
+    // ✅ FIX: Validate that this battle can be started according to tournament strategy
+    if (battleTournamentService.hasActiveTournament()) {
+      const canStart = battleTournamentService.canStartBattle(trackA, trackB)
+      if (!canStart) {
+        throw new Error('Cannot start this battle - it does not match the expected tournament matchup')
+      }
+    }
+
     // ✅ FIX: Clear any existing completed battle before starting new one
     if (currentBattle.value?.winner) {
       currentBattle.value = null
@@ -194,6 +214,11 @@ export const useBattleStore = defineStore('battle', () => {
       throw new Error('Battle already completed')
     }
 
+    // ✅ FIX: Validate that the voted track is part of the current battle
+    if (currentBattle.value.trackA.id !== trackId && currentBattle.value.trackB.id !== trackId) {
+      throw new Error('Invalid vote: track is not part of the current battle')
+    }
+
     const vote: BattleVote = {
       id: generateId(),
       trackId,
@@ -218,11 +243,25 @@ export const useBattleStore = defineStore('battle', () => {
     // Save to history
     battleHistory.value.push({ ...currentBattle.value })
 
-    // ✅ NEW: Notify tournament store about completed battle
-    console.log('🎵 Battle completed:', {
-      winner: trackId,
-      tournamentActive: battleTournamentService.hasActiveTournament()
-    })
+    // ✅ IMPROVED: Enhanced tournament notification with validation
+    if (battleTournamentService.hasActiveTournament()) {
+      console.log('🎵 Tournament battle completed:', {
+        battleId: currentBattle.value.id,
+        winner: trackId,
+        trackA: currentBattle.value.trackA.name,
+        trackB: currentBattle.value.trackB.name,
+        tournamentActive: battleTournamentService.hasActiveTournament()
+      })
+    } else {
+      console.log('🎵 Regular battle completed:', {
+        battleId: currentBattle.value.id,
+        winner: trackId,
+        trackA: currentBattle.value.trackA.name,
+        trackB: currentBattle.value.trackB.name
+      })
+    }
+
+    // Notify tournament store about completed battle (with validation inside the service)
     battleTournamentService.notifyBattleCompletion(currentBattle.value)
 
     // ✅ FIX: Don't clear current battle immediately
