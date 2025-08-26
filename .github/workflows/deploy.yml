@@ -1,9 +1,15 @@
-name: Deploy to GitHub Pages
+name: Build and Deploy to GitHub Pages
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Deploy to GitHub Pages'
+        required: true
+        default: true
+        type: boolean
 
 permissions:
   contents: read
@@ -15,8 +21,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  test:
-    name: Run Tests and Quality Checks
+  test-and-build:
+    name: Run Tests and Build
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -47,34 +53,6 @@ jobs:
       - name: Run tests
         run: pnpm run test --run
 
-  build:
-    name: Build and Deploy to GitHub Pages
-    needs: test
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
       - name: Create production environment file
         run: |
           cat > .env.production << 'EOF'
@@ -91,6 +69,31 @@ jobs:
 
       - name: Build application
         run: pnpm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: ./dist
+          retention-days: 30
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy == true
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: ./dist
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
