@@ -138,6 +138,13 @@
               @vote="voteForTrack"
               :can-vote="!currentBattle.winner"
               :winner-id="currentBattle.winner"
+              :embed-options="{
+                theme: 'dark',
+                autoplay: true,
+                utmSource: 'music-battle-fight-night',
+                utmMedium: 'battle-embed',
+                utmCampaign: 'track-battle-left'
+              }"
             />
           </v-col>
 
@@ -163,6 +170,13 @@
               @vote="voteForTrack"
               :can-vote="!currentBattle.winner"
               :winner-id="currentBattle.winner"
+              :embed-options="{
+                theme: 'dark',
+                autoplay: false,
+                utmSource: 'music-battle-fight-night',
+                utmMedium: 'battle-embed',
+                utmCampaign: 'track-battle-right'
+              }"
             />
           </v-col>
         </v-row>
