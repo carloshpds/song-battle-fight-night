@@ -1,4 +1,4 @@
-import { beforeEach, vi } from 'vitest'
+import { beforeEach } from 'vitest'
 import { config } from '@vue/test-utils'
 
 // Mock Vuetify components

@@ -153,11 +153,22 @@ import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
 import type { SpotifyTrack } from '@/features/spotify-integration/types/spotify.types'
 
+interface SpotifyEmbedOptions {
+  theme?: 'dark' | 'light'
+  compact?: boolean
+  autoplay?: boolean
+  startTime?: number
+  utmSource?: string
+  utmMedium?: string
+  utmCampaign?: string
+}
+
 interface Props {
   track: SpotifyTrack
   side: 'left' | 'right'
   canVote?: boolean
   winnerId?: string | null
+  embedOptions?: SpotifyEmbedOptions
 }
 
 interface Emits {
@@ -166,7 +177,15 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   canVote: true,
-  winnerId: null
+  winnerId: null,
+  embedOptions: () => ({
+    theme: 'dark',
+    compact: false,
+    autoplay: false,
+    utmSource: 'music-battle-fight-night',
+    utmMedium: 'battle-embed',
+    utmCampaign: 'track-battle'
+  })
 })
 
 const emit = defineEmits<Emits>()
@@ -188,7 +207,7 @@ const isVoteDisabled = computed(() => {
   return !props.track.preview_url && !props.track.external_urls?.spotify
 })
 
-// Generate Spotify embed URL from track ID
+// Generate Spotify embed URL with customizable options
 const embedUrl = computed(() => {
   if (!props.track.id) return null
 
@@ -197,11 +216,49 @@ const embedUrl = computed(() => {
     ? props.track.id.split(':').pop()
     : props.track.id
 
-  return `https://open.spotify.com/embed/track/${trackId}?utm_source=generator&theme=0`
+  const baseUrl = `https://open.spotify.com/embed/track/${trackId}`
+  const params = new URLSearchParams()
+
+  // Theme: 0 = dark, 1 = light
+  params.set('theme', props.embedOptions.theme === 'light' ? '1' : '0')
+
+  // Compact mode
+  if (props.embedOptions.compact) {
+    params.set('compact', '1')
+  }
+
+  // AutoPlay (limited browser support)
+  if (props.embedOptions.autoplay) {
+    params.set('autoplay', '1')
+  }
+
+  // Start time in seconds
+  if (props.embedOptions.startTime) {
+    params.set('t', props.embedOptions.startTime.toString())
+  }
+
+  // UTM tracking parameters
+  if (props.embedOptions.utmSource) {
+    params.set('utm_source', props.embedOptions.utmSource)
+  }
+
+  if (props.embedOptions.utmMedium) {
+    params.set('utm_medium', props.embedOptions.utmMedium)
+  }
+
+  if (props.embedOptions.utmCampaign) {
+    params.set('utm_campaign', props.embedOptions.utmCampaign)
+  }
+
+  return `${baseUrl}?${params.toString()}`
 })
 
-// Responsive embed height
+// Responsive and customizable embed height
 const embedHeight = computed(() => {
+  if (props.embedOptions.compact) {
+    return mobile.value ? '152' : '180'
+  }
+
   if (mobile.value) return '280'
   if (!smAndUp.value) return '320'
   return '352'
