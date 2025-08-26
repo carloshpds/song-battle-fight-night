@@ -6,7 +6,7 @@ const tournamentRoutes: RouteRecordRaw[] = [
     name: 'TournamentList',
     component: () => import('../views/TournamentListView.vue'),
     meta: {
-      title: 'Your Tournaments - Music Battle Fight Night',
+      title: 'Your Tournaments - Song Battle Fight Night',
       requiresAuth: true
     }
   },
@@ -15,7 +15,7 @@ const tournamentRoutes: RouteRecordRaw[] = [
     name: 'TournamentDetail',
     component: () => import('../views/TournamentDetailView.vue'),
     meta: {
-      title: 'Tournament Details - Music Battle Fight Night',
+      title: 'Tournament Details - Song Battle Fight Night',
       requiresAuth: true
     }
   }

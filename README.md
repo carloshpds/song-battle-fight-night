@@ -1,20 +1,20 @@
 <div align="center">
 
-# 🎵⚔️ Music Battle Fight Night
+# 🎵⚔️ Song Battle Fight Night
 
 ### *Descubra a música suprema através de batalhas épicas!*
 
-[![Build Status](https://img.shields.io/github/workflow/status/carloshpds/music-battle-fight-night/CI)](https://github.com/carloshpds/music-battle-fight-night/actions)
-[![Version](https://img.shields.io/github/package-json/v/carloshpds/music-battle-fight-night)](https://github.com/carloshpds/music-battle-fight-night)
+[![Build Status](https://img.shields.io/github/workflow/status/carloshpds/song-battle-fight-night/CI)](https://github.com/carloshpds/song-battle-fight-night/actions)
+[![Version](https://img.shields.io/github/package-json/v/carloshpds/song-battle-fight-night)](https://github.com/carloshpds/song-battle-fight-night)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Contributors](https://img.shields.io/github/contributors/carloshpds/music-battle-fight-night)](https://github.com/carloshpds/music-battle-fight-night/graphs/contributors)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/carloshpds/music-battle-fight-night/pulls)
+[![Contributors](https://img.shields.io/github/contributors/carloshpds/song-battle-fight-night)](https://github.com/carloshpds/song-battle-fight-night/graphs/contributors)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/carloshpds/song-battle-fight-night/pulls)
 
 ---
 
 **Uma experiência interativa e divertida para descobrir suas músicas favoritas através de batalhas diretas**
 
-[🚀 Demo ao Vivo](https://music-battle-fight-night.vercel.app) • [📋 Roadmap](#roadmap) • [🤝 Contribuir](#contribuindo)
+[🚀 Demo ao Vivo](https://song-battle-fight-night.vercel.app) • [📋 Roadmap](#roadmap) • [🤝 Contribuir](#contribuindo)
 
 </div>
 
@@ -22,7 +22,7 @@
 
 ## 🎯 Sobre o Projeto
 
-O **Music Battle Fight Night** é uma aplicação web moderna que transforma a descoberta musical em uma experiência gamificada e envolvente. Conecte sua conta do Spotify, selecione suas playlists favoritas e deixe suas músicas lutarem em batalhas épicas 1v1 até encontrar a campeã absoluta!
+O **Song Battle Fight Night** é uma aplicação web moderna que transforma a descoberta musical em uma experiência gamificada e envolvente. Conecte sua conta do Spotify, selecione suas playlists favoritas e deixe suas músicas lutarem em batalhas épicas 1v1 até encontrar a campeã absoluta!
 
 ### ✨ Por que usar?
 
@@ -129,10 +129,10 @@ O **Music Battle Fight Night** é uma aplicação web moderna que transforma a d
 
 ```bash
 # Clone o repositório
-git clone https://github.com/carloshpds/music-battle-fight-night.git
+git clone https://github.com/carloshpds/song-battle-fight-night.git
 
 # Entre no diretório
-cd music-battle-fight-night
+cd song-battle-fight-night
 
 # Instale as dependências
 pnpm install
@@ -237,9 +237,9 @@ Contribuições são muito bem-vindas! Este projeto segue as melhores práticas 
 
 Encontrou um bug? Tem uma ideia incrível?
 
-- 🐛 **Bug Reports**: [Criar Issue](https://github.com/carloshpds/music-battle-fight-night/issues/new?template=bug_report.md)
-- ✨ **Feature Requests**: [Sugerir Feature](https://github.com/carloshpds/music-battle-fight-night/issues/new?template=feature_request.md)
-- 💬 **Discussões**: [Discussions](https://github.com/carloshpds/music-battle-fight-night/discussions)
+- 🐛 **Bug Reports**: [Criar Issue](https://github.com/carloshpds/song-battle-fight-night/issues/new?template=bug_report.md)
+- ✨ **Feature Requests**: [Sugerir Feature](https://github.com/carloshpds/song-battle-fight-night/issues/new?template=feature_request.md)
+- 💬 **Discussões**: [Discussions](https://github.com/carloshpds/song-battle-fight-night/discussions)
 
 ---
 
@@ -262,7 +262,7 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 **Carlos Henrique** - [@carloshpds](https://github.com/carloshpds)
 
-**Link do Projeto**: [https://github.com/carloshpds/music-battle-fight-night](https://github.com/carloshpds/music-battle-fight-night)
+**Link do Projeto**: [https://github.com/carloshpds/song-battle-fight-night](https://github.com/carloshpds/song-battle-fight-night)
 
 ---
 

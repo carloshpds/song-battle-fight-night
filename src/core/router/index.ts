@@ -16,7 +16,7 @@ const routes: RouteRecordRaw[] = [
     name: 'Home',
     component: () => import('@/views/HomeView.vue'),
     meta: {
-      title: 'Music Battle Fight Night'
+      title: 'Song Battle Fight Night'
     }
   },
   // Feature routes

@@ -6,7 +6,7 @@ const battleRoutes: RouteRecordRaw[] = [
     name: 'Battle',
     component: () => import('../views/BattleView.vue'),
     meta: {
-      title: 'Battle Arena - Music Battle Fight Night',
+      title: 'Battle Arena - Song Battle Fight Night',
       requiresSpotify: true
     }
   },
@@ -15,7 +15,7 @@ const battleRoutes: RouteRecordRaw[] = [
     name: 'BattleImport',
     component: () => import('@/features/spotify-integration/views/PlaylistImportView.vue'),
     meta: {
-      title: 'Import Music - Music Battle Fight Night',
+      title: 'Import Music - Song Battle Fight Night',
       requiresSpotify: true
     }
   }

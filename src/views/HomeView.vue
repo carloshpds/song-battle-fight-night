@@ -1,8 +1,8 @@
 <template>
   <v-container>
     <div class="text-center">
-      <h1>Music Battle Fight Night</h1>
-      <p>Welcome to the ultimate music battle arena!</p>
+      <h1>Song Battle Fight Night</h1>
+      <p>Welcome to the ultimate song battle arena!</p>
     </div>
   </v-container>
 </template>

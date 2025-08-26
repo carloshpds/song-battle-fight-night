@@ -1,8 +1,8 @@
-# 🏆 Tournament System - Music Battle Fight Night
+# 🏆 Tournament System - Song Battle Fight Night
 
 ## Overview
 
-The Tournament System transforms individual music battles into organized, progressive tournaments where playlists compete until a single champion track emerges.
+The Tournament System transforms individual song battles into organized, progressive tournaments where playlists compete until a single champion track emerges.
 
 ## 🎯 Features
 
@@ -255,4 +255,4 @@ const nextMatchup = tournamentStore.getNextMatchup(tournament)
 // Navigate to battle with these tracks
 ```
 
-This tournament system provides a complete framework for organizing and managing music battles in a structured, engaging way that enhances the user experience beyond simple one-off battles.
+This tournament system provides a complete framework for organizing and managing song battles in a structured, engaging way that enhances the user experience beyond simple one-off battles.

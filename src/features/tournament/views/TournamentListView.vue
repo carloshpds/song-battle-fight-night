@@ -5,7 +5,7 @@
       <div>
         <h1 class="text-h4 mb-2">Your Tournaments</h1>
         <p class="text-body-1 text-medium-emphasis">
-          Manage your music battle tournaments and view results
+          Manage your song battle tournaments and view results
         </p>
       </div>
 

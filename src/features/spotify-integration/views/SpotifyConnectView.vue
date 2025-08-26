@@ -7,7 +7,7 @@
             <v-icon color="success" size="x-large" class="mr-2">
               mdi-spotify
             </v-icon>
-            Music Battle Fight Night
+            Song Battle Fight Night
           </v-card-title>
 
           <v-card-subtitle class="text-h6 mb-6">

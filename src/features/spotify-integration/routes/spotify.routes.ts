@@ -6,7 +6,7 @@ const spotifyRoutes: RouteRecordRaw[] = [
     name: 'SpotifyConnect',
     component: () => import('../views/SpotifyConnectView.vue'),
     meta: {
-      title: 'Connect Spotify - Music Battle Fight Night'
+      title: 'Connect Spotify - Song Battle Fight Night'
     }
   },
   {
@@ -14,7 +14,7 @@ const spotifyRoutes: RouteRecordRaw[] = [
     name: 'SpotifyImport',
     component: () => import('../views/PlaylistImportView.vue'),
     meta: {
-      title: 'Import from Spotify - Music Battle Fight Night',
+      title: 'Import from Spotify - Song Battle Fight Night',
       requiresSpotify: true
     }
   },
