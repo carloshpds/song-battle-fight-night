@@ -40,7 +40,7 @@ export const useSpotifyStore = defineStore('spotify', () => {
           const currentUser = await apiService.getCurrentUser()
           authState.value.user = currentUser
         } catch (error) {
-          console.warn('Stored token is invalid, clearing auth state')
+          console.warn('Stored token is invalid, clearing auth state', error)
           await logout()
         }
       }
@@ -139,6 +139,7 @@ export const useSpotifyStore = defineStore('spotify', () => {
           const playlists = await apiService.getAllUserPlaylists()
           userPlaylists.value = playlists
         } catch (refreshError) {
+          console.error('Error refreshing token:', refreshError)
           throw err // Throw original error
         }
       } else {

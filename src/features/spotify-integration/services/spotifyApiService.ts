@@ -227,6 +227,7 @@ export class SpotifyApiService {
       await this.getCurrentUser()
       return true
     } catch (error) {
+      console.error('Token validation failed:', error)
       return false
     }
   }
