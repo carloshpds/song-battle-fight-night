@@ -6,6 +6,17 @@ import type {
   SpotifyApiError
 } from '../types/spotify.types'
 
+
+interface SpotifyPlaylistTracksResponse {
+  items: SpotifyPlaylistTrack[]
+  next: string | null
+}
+
+interface SpotifyTracksResponse {
+  items: SpotifyTrack[]
+  next: string | null
+}
+
 export class SpotifyApiService {
   private readonly baseUrl = 'https://api.spotify.com/v1'
   private accessToken: string
@@ -91,10 +102,7 @@ export class SpotifyApiService {
     let nextUrl: string | null = `/playlists/${playlistId}/tracks?limit=50`
 
     while (nextUrl) {
-      const response = await this.makeRequest<{
-        items: SpotifyPlaylistTrack[]
-        next: string | null
-      }>(nextUrl)
+      const response: SpotifyPlaylistTracksResponse = await this.makeRequest<SpotifyPlaylistTracksResponse>(nextUrl)
 
       const validTracks = response.items
         .map((item: SpotifyPlaylistTrack) => item.track)
@@ -168,10 +176,7 @@ export class SpotifyApiService {
     let nextUrl: string | null = `/albums/${albumId}/tracks?limit=50`
 
     while (nextUrl) {
-      const response = await this.makeRequest<{
-        items: SpotifyTrack[]
-        next: string | null
-      }>(nextUrl)
+      const response: SpotifyTracksResponse = await this.makeRequest<SpotifyTracksResponse>(nextUrl)
 
       // Filter tracks with preview URLs
       const validTracks = response.items.filter((track: SpotifyTrack) => track.preview_url !== null)
