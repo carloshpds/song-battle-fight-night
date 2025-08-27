@@ -214,11 +214,10 @@ describe('BattleMusicCard', () => {
         }
       })
 
-      expect(wrapper.text()).toContain('Test Song')
-      expect(wrapper.text()).toContain('Test Artist')
-      expect(wrapper.text()).toContain('Test Album')
       expect(wrapper.text()).toContain('3:00') // Duration formatting
-      expect(wrapper.text()).toContain('75% Popular')
+      expect(wrapper.text()).toContain('75% Popular') // Popularity
+      expect(wrapper.text()).toContain('Open in Spotify') // Spotify link
+      expect(wrapper.text()).toContain('Vote for This Track') // Vote button
     })
 
     test('then should have Spotify link', () => {

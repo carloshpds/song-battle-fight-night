@@ -37,8 +37,21 @@ describe('useAudio', () => {
   beforeEach(() => {
     vi.clearAllMocks()
 
+    // Reset mock audio properties
+    mockAudio.volume = 0.5
+    mockAudio.preload = 'auto'
+    mockAudio.currentTime = 0
+
     // Mock global Audio constructor
-    global.Audio = vi.fn(() => mockAudio) as any
+    global.Audio = vi.fn(() => {
+      return {
+        play: vi.fn().mockResolvedValue(undefined),
+        pause: vi.fn(),
+        currentTime: 0,
+        volume: 0.5,
+        preload: 'auto'
+      }
+    }) as any
 
     // Mock AudioContext
     global.AudioContext = vi.fn(() => mockAudioContext) as any
@@ -56,27 +69,20 @@ describe('useAudio', () => {
   })
 
   describe('when playing vote success sound', () => {
-    test('then should create audio context and oscillator', () => {
+    test('then should create audio element and play', async () => {
       const { playVoteSuccessSound } = useAudio()
 
-      playVoteSuccessSound()
+      await playVoteSuccessSound()
 
-      expect(global.AudioContext).toHaveBeenCalled()
-      expect(mockAudioContext.createOscillator).toHaveBeenCalled()
-      expect(mockAudioContext.createGain).toHaveBeenCalled()
+      expect(global.Audio).toHaveBeenCalledWith('/audio/vote-success.mp3')
     })
 
-    test('then should configure oscillator for success sound', () => {
-      const { playVoteSuccessSound } = useAudio()
+    test('then should set correct volume for audio instance', () => {
+      const { preloadAudio } = useAudio()
 
-      playVoteSuccessSound()
+      const audio = preloadAudio('/audio/vote-success.mp3', { volume: 0.6 })
 
-      // Verify that audio context was created and oscillators were configured
-      const oscillatorCalls = mockAudioContext.createOscillator.mock.calls
-      const gainCalls = mockAudioContext.createGain.mock.calls
-
-      expect(oscillatorCalls.length).toBeGreaterThan(0)
-      expect(gainCalls.length).toBeGreaterThan(0)
+      expect(audio?.volume).toBe(0.6)
     })
   })
 
