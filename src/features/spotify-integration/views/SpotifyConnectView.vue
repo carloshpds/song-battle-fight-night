@@ -1,15 +1,20 @@
 <template>
   <v-container class="fill-height" fluid>
     <v-row justify="center" align="center" class="fill-height">
-      <v-col cols="12" sm="8" md="6" lg="4">
-        <v-card class="elevation-8 pa-6 text-center">
-          <v-card-title class="text-h4 mb-4">
-            <v-icon color="success" size="x-large" class="mr-2">
-              mdi-spotify
-            </v-icon>
-            Song Battle Fight Night
-          </v-card-title>
+      <v-col cols="12" class="text-center">
+        <div class="mb-6">
+          <v-img
+            :src="symbolLogo"
+            alt="Song Battle Fight Night Logo"
+            width="400"
+            height="300"
+            class="mx-auto"
+          />
+        </div>
 
+        <v-row justify="center">
+          <v-col cols="12" sm="8" md="7" lg="6">
+        <v-card class="elevation-8 pa-6 text-center">
           <v-card-subtitle class="text-h6 mb-6">
             Connect your Spotify account to start battling your favorite tracks!
           </v-card-subtitle>
@@ -95,13 +100,16 @@
         </v-card>
       </v-col>
     </v-row>
-  </v-container>
+  </v-col>
+</v-row>
+</v-container>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSpotifyStore } from '../stores/spotifyStore'
+import symbolLogo from '@/assets/images/logo/symbol-logo.png'
 
 const router = useRouter()
 const spotifyStore = useSpotifyStore()
