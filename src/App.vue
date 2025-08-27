@@ -41,11 +41,11 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(139, 92, 246, 0.5);
+  background: #65f200;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(139, 92, 246, 0.7);
+  background: #16b166;
 }
 </style>

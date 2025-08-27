@@ -8,13 +8,13 @@
             alt="Song Battle Fight Night Logo"
             width="400"
             height="300"
-            class="mx-auto"
+            class="mx-auto sbfn-logo"
           />
         </div>
 
         <v-row justify="center">
           <v-col cols="12" sm="8" md="7" lg="6">
-        <v-card class="elevation-8 pa-6 text-center">
+        <v-card class="elevation-10 pa-6 text-center">
           <v-card-subtitle class="text-h6 mb-6">
             Connect your Spotify account to start battling your favorite tracks!
           </v-card-subtitle>
@@ -139,6 +139,10 @@ if (spotifyStore.isAuthenticated) {
 
 <style scoped>
 .fill-height {
-  min-height: 100vh;
+  min-height: 1vh;
+}
+
+.sbfn-logo {
+  filter: drop-shadow(0px 5px 4px #16b166);
 }
 </style>
