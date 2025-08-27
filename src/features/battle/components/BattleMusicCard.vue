@@ -114,6 +114,18 @@
           <v-icon class="mr-1">mdi-spotify</v-icon>
           Open in Spotify
         </v-btn>
+
+        <!-- YouTube Search -->
+        <v-btn
+          @click="handleYouTubeSearch"
+          variant="text"
+          size="small"
+          color="error"
+          class="mb-2"
+        >
+          <v-icon class="mr-1">mdi-youtube</v-icon>
+          Search on YouTube
+        </v-btn>
       </v-card-text>
 
       <!-- Vote Button -->
@@ -271,6 +283,12 @@ const handleCardClick = () => {
 
 const handleVote = () => {
   emit('vote', props.track.id)
+}
+
+const handleYouTubeSearch = () => {
+  const query = `${props.track.name} ${artistNames.value}`
+  const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`
+  window.open(searchUrl, '_blank', 'noopener,noreferrer')
 }
 
 const formatDuration = (ms: number): string => {

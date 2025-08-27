@@ -4,6 +4,7 @@ const blue = '#247eb9'
 const darkenBlue = '#1e6a9b'
 const gray = '#484848'
 const green = '#65f200'
+const logoGreen = '#16b166'
 const darkenGreen = '#52c000'
 const red = '#f20400'
 const yellow = '#f2ba00'
@@ -36,7 +37,8 @@ export const sbfnLightTheme: ThemeDefinition = {
     green,
     purple,
     pink,
-    gray
+    gray,
+    logoGreen
   },
 }
 
@@ -61,7 +63,8 @@ export const sbfnDarkTheme: ThemeDefinition = {
     green,
     purple,
     pink,
-    gray
+    gray,
+    logoGreen
   },
 }
 

@@ -11,7 +11,20 @@ config.global.stubs = {
   'v-card-text': { template: '<div class="v-card-text"><slot /></div>' },
   'v-card-actions': { template: '<div class="v-card-actions"><slot /></div>' },
   'v-alert': { template: '<div class="v-alert"><slot /></div>' },
-  'v-progress-linear': { template: '<div class="v-progress-linear"></div>' }
+  'v-progress-linear': { template: '<div class="v-progress-linear"></div>' },
+  'v-avatar': { template: '<div class="v-avatar"><slot /></div>' },
+  'v-card-title': { template: '<div class="v-card-title"><slot /></div>' },
+  'v-col': { template: '<div class="v-col"><slot /></div>' },
+  'v-row': { template: '<div class="v-row"><slot /></div>' },
+  'v-container': { template: '<div class="v-container"><slot /></div>' },
+  'v-text-field': { template: '<input class="v-text-field" v-bind="$attrs" />' },
+  'v-tab': { template: '<div class="v-tab"><slot /></div>' },
+  'v-tabs': { template: '<div class="v-tabs"><slot /></div>' },
+  'v-divider': { template: '<div class="v-divider"></div>' },
+  'v-pagination': { template: '<div class="v-pagination"></div>' },
+  'v-window-item': { template: '<div class="v-window-item"><slot /></div>' },
+  'v-window': { template: '<div class="v-window"><slot /></div>' },
+  'v-dialog': { template: '<div class="v-dialog"><slot /></div>' }
 }
 
 // Mock global objects if needed

@@ -97,6 +97,17 @@ describe('BattleView', () => {
           'battle-music-card': { template: '<div></div>' },
           'leaderboard-dialog': { template: '<div></div>' },
           'tournament-results-modal': { template: '<div></div>' },
+          'tournament-progress': {
+            template: `<div class="tournament-progress-section">
+              Tournament: Test Tournament
+              Progress: 45.5%
+              Round: 2
+              Remaining: 2
+              Battles: 5
+              Eliminated: 1
+              <slot />
+            </div>`
+          },
         }
       }
     })
@@ -135,13 +146,22 @@ describe('BattleView', () => {
       name: 'Test Tournament',
       playlistId: 'playlist-1',
       status: 'active' as const,
-      tracks: [{ id: '1' }, { id: '2' }, { id: '3' }],
+      tracks: [
+        { id: '1', name: 'Track 1', artists: [{ name: 'Artist 1' }] },
+        { id: '2', name: 'Track 2', artists: [{ name: 'Artist 2' }] },
+        { id: '3', name: 'Track 3', artists: [{ name: 'Artist 3' }] }
+      ],
       progress: {
         progressPercentage: 45.5,
         currentRound: 2,
-        remainingTracks: [{ id: '1' }, { id: '2' }],
+        remainingTracks: [
+          { id: '1', name: 'Track 1', artists: [{ name: 'Artist 1' }] },
+          { id: '2', name: 'Track 2', artists: [{ name: 'Artist 2' }] }
+        ],
         battlesCompleted: 5,
-        eliminatedTracks: [{ id: '3' }],
+        eliminatedTracks: [
+          { id: '3', name: 'Track 3', artists: [{ name: 'Artist 3' }] }
+        ],
       }
     }
 
