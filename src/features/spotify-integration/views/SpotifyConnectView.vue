@@ -144,5 +144,19 @@ if (spotifyStore.isAuthenticated) {
 
 .sbfn-logo {
   filter: drop-shadow(0px 5px 4px #16b166);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.sbfn-logo:hover {
+  animation: heartBeat 1s infinite;
+}
+
+@keyframes heartBeat {
+  0% { transform: scale(1); }
+  14% { transform: scale(1.05); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.05); }
+  70% { transform: scale(1); }
 }
 </style>
