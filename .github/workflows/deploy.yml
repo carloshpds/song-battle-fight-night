@@ -96,6 +96,9 @@ jobs:
           name: dist
           path: ./dist
 
+      - name: Create .nojekyll file
+        run: touch ./dist/.nojekyll
+
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
 
