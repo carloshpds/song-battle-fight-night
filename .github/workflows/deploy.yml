@@ -83,7 +83,7 @@ jobs:
     needs: test-and-build
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: github.event_name == 'workflow_dispatch' && inputs.deploy == true
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true)
 
     environment:
       name: production
@@ -95,6 +95,9 @@ jobs:
         with:
           name: dist
           path: ./dist
+
+      - name: Create .nojekyll file
+        run: touch ./dist/.nojekyll
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
