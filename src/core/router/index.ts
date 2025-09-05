@@ -35,7 +35,7 @@ const routes: RouteRecordRaw[] = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.VITE_APP_CONTEXT_PATH),
   routes,
   scrollBehavior(_to, _from, savedPosition) {
     if (savedPosition) {
