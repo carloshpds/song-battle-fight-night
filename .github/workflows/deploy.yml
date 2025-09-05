@@ -83,7 +83,7 @@ jobs:
     needs: test-and-build
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: github.event_name == 'workflow_dispatch' && inputs.deploy == true
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true)
 
     environment:
       name: production
